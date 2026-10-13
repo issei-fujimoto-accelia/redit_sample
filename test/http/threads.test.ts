@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { createClock, createCommunity, createThread, html, setup, unique } from "../helpers";
+import { createClock, createCommunity, createThread, html, reply, setup, unique } from "../helpers";
+
+const bob = "bob@example.com";
 
 const alice = "alice@example.com";
 
@@ -132,5 +134,33 @@ describe("スレッドの削除", () => {
     expect(res.headers.get("Location")).toBe(`/c/${cid}`);
     expect((await as(alice).get(`/t/${tid}`)).status).toBe(404);
     expect((await html(await as(alice).get(`/c/${cid}`))).has(title)).toBe(false);
+  });
+});
+
+describe("スレッドの削除（返信あり）", () => {
+  it("返信ありのスレッド削除 → 409、理由の表示、スレッドと全投稿が残る", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid, { body: "残る本文" });
+    await reply(as(bob), tid, "残る返信");
+    const res = await as(alice).post(`/t/${tid}/delete`);
+    expect(res.status).toBe(409);
+    expect((await html(res)).has("返信が残っているスレッドは削除できません。")).toBe(true);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has("残る本文")).toBe(true);
+    expect(page.has("残る返信")).toBe(true);
+  });
+
+  it("返信を削除した後は、スレッドを削除できる", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const rid = await reply(as(alice), tid);
+    expect((await as(alice).post(`/t/${tid}/delete`)).status).toBe(409);
+    await as(alice).post(`/p/${rid}/delete`);
+    const res = await as(alice).post(`/t/${tid}/delete`);
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/c/${cid}`);
+    expect((await as(alice).get(`/t/${tid}`)).status).toBe(404);
   });
 });
