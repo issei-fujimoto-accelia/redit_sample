@@ -3,8 +3,8 @@ import { displayName } from "../../lib/display-name";
 import { RULES } from "../../lib/validation";
 import type { CommunityRecord } from "../../repositories/communities";
 import { CommunityGrid } from "../components/community";
-import { EmptyState, MarginNote, Timestamp } from "../components/common";
-import { Field, Form } from "../components/form";
+import { Edited, EmptyState, MarginNote, Notice, Timestamp } from "../components/common";
+import { Field, Form, OwnerActions } from "../components/form";
 import { Layout, PageHeader } from "../components/site";
 import { ThreadList } from "../components/thread";
 import { errorList, type FormState } from "../form-state";
@@ -73,9 +73,15 @@ export function CommunityListPage({ user, communities, create }: ListProps) {
 type PageProps = {
   user: string;
   community: CommunityRecord;
+  /** 修正の 400／409 */
+  edit?: FormState;
+  /** 削除できない理由（409） */
+  deleteError?: string;
 };
 
-export function CommunityPage({ user, community: c }: PageProps) {
+export function CommunityPage({ user, community: c, edit, deleteError }: PageProps) {
+  const isOwner = c.author_email === user;
+  const editState: FormState = edit ?? { values: { name: c.name, description: c.description }, errors: {} };
   return (
     <Layout title={c.name} user={user} current="communities">
       <PageHeader
@@ -83,7 +89,28 @@ export function CommunityPage({ user, community: c }: PageProps) {
         title={c.name}
         description={c.description || undefined}
         hue={communityHue(c.id)}
+        actions={
+          <OwnerActions
+            isOwner={isOwner}
+            editOpen={edit !== undefined}
+            editLabel="コミュニティを編集"
+            edit={
+              <Form action={`/c/${c.id}/edit`} submitLabel="保存する" errors={errorList(edit)}>
+                <CommunityFields formId="edit-community" state={editState} />
+              </Form>
+            }
+            deleteAction={`/c/${c.id}/delete`}
+            deleteConfirm={`コミュニティ「${c.name}」を削除しますか？この操作は取り消せません。`}
+          />
+        }
       />
+      {deleteError && (
+        <div class="page-notice">
+          <Notice tone="error" title="このコミュニティは削除できません">
+            {deleteError}
+          </Notice>
+        </div>
+      )}
       <div class="page-grid" style={`--community-hue: ${communityHue(c.id)}`}>
         <div class="col-margin">
           <MarginNote
@@ -91,6 +118,7 @@ export function CommunityPage({ user, community: c }: PageProps) {
             items={[
               { label: "作成者", value: displayName(c.author_email) },
               { label: "作成", value: <Timestamp iso={c.created_at} /> },
+              ...(c.updated_at ? [{ label: "更新", value: <><Timestamp iso={c.updated_at} /> <Edited updatedAt={c.updated_at} /></> }] : []),
             ]}
           />
         </div>

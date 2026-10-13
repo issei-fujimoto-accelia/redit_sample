@@ -26,5 +26,26 @@ export function communityRoutes(deps: AppDeps) {
     return render(c, <CommunityPage user={c.var.user} community={community} />);
   });
 
+  r.post("/:id/edit", async (c) => {
+    const id = parseId(c.req.param("id"));
+    const form = await c.req.parseBody();
+    const result = await svc.updateCommunity(c.env.DB, c.var.user, deps.now(), id, form);
+    if (result.ok) return c.redirect(`/c/${id}`, 303);
+    const community = await svc.getCommunity(c.env.DB, id);
+    return render(c, <CommunityPage user={c.var.user} community={community} edit={result} />, result.status);
+  });
+
+  r.post("/:id/delete", async (c) => {
+    const id = parseId(c.req.param("id"));
+    const result = await svc.deleteCommunity(c.env.DB, c.var.user, id);
+    if (result.ok) return c.redirect("/c", 303);
+    const community = await svc.getCommunity(c.env.DB, id);
+    return render(
+      c,
+      <CommunityPage user={c.var.user} community={community} deleteError={result.errors.delete} />,
+      result.status,
+    );
+  });
+
   return r;
 }

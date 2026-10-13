@@ -106,3 +106,81 @@ describe("コミュニティページ", () => {
     expect(idFrom(res, "c")).toBeGreaterThan(0);
   });
 });
+
+describe("コミュニティの修正", () => {
+  it("作成者が名前・説明を修正 → 303、ページに新しい名前・説明が出る", async () => {
+    const { as } = setup();
+    const id = await createCommunity(as(alice), { description: "古い説明" });
+    const name = unique("新しい名前");
+    const res = await as(alice).post(`/c/${id}/edit`, { name, description: "新しい説明" });
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/c/${id}`);
+    const page = await html(await as(alice).get(`/c/${id}`));
+    expect(page.has(name)).toBe(true);
+    expect(page.has("新しい説明")).toBe(true);
+    expect(page.has("古い説明")).toBe(false);
+  });
+
+  it("名前を変えずに説明だけ修正できる（自分自身とは重複しない）", async () => {
+    const { as } = setup();
+    const name = unique("同じ名前");
+    const id = await createCommunity(as(alice), { name });
+    const res = await as(alice).post(`/c/${id}/edit`, { name, description: "説明だけ変更" });
+    expect(res.status).toBe(303);
+  });
+
+  it("修正後の名前が既存と重複（大小文字違い含む）→ 409、内容は変わらない", async () => {
+    const { as } = setup();
+    const taken = `Taken-${unique("x")}`;
+    await createCommunity(as(alice), { name: taken });
+    const mine = unique("mine");
+    const id = await createCommunity(as(alice), { name: mine });
+    for (const dup of [taken, taken.toLowerCase()]) {
+      const res = await as(alice).post(`/c/${id}/edit`, { name: dup, description: "" });
+      expect(res.status).toBe(409);
+      expect((await html(res)).has("同じ名前のコミュニティがすでにあります。")).toBe(true);
+    }
+    expect((await html(await as(alice).get(`/c/${id}`))).has(mine)).toBe(true);
+  });
+
+  it("修正で名前を空 → 400、入力値とエラーを表示", async () => {
+    const { as } = setup();
+    const id = await createCommunity(as(alice));
+    const res = await as(alice).post(`/c/${id}/edit`, { name: "", description: "残す説明" });
+    expect(res.status).toBe(400);
+    const page = await html(res);
+    expect(page.has("コミュニティ名を入力してください。")).toBe(true);
+    expect(page.has("残す説明")).toBe(true);
+  });
+
+  it("存在しないコミュニティの修正 → 404", async () => {
+    const { as } = setup();
+    expect((await as(alice).post("/c/999999/edit", { name: unique() })).status).toBe(404);
+  });
+});
+
+describe("コミュニティの削除", () => {
+  it("スレッドのないコミュニティを削除 → 303 /c、一覧から消え、/c/:id が 404", async () => {
+    const { as } = setup();
+    const name = unique("消す");
+    const id = await createCommunity(as(alice), { name });
+    const res = await as(alice).post(`/c/${id}/delete`);
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe("/c");
+    expect((await html(await as(alice).get("/c"))).has(name)).toBe(false);
+    expect((await as(alice).get(`/c/${id}`)).status).toBe(404);
+  });
+
+  it("作成者にはコミュニティページに修正・削除の操作が表示される", async () => {
+    const { as } = setup();
+    const id = await createCommunity(as(alice));
+    const page = await html(await as(alice).get(`/c/${id}`));
+    expect(page.formActions).toContain(`/c/${id}/edit`);
+    expect(page.formActions).toContain(`/c/${id}/delete`);
+  });
+
+  it("存在しないコミュニティの削除 → 404", async () => {
+    const { as } = setup();
+    expect((await as(alice).post("/c/999999/delete")).status).toBe(404);
+  });
+});

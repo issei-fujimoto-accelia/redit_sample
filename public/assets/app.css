@@ -609,7 +609,8 @@
   .owner-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2); }
   .owner-actions__delete { display: contents; }
   .disclosure { inline-size: 100%; }
-  .owner-actions .disclosure:not([open]) { inline-size: auto; }
+  .owner-actions .disclosure { inline-size: auto; }
+  .owner-actions .disclosure[open] { flex: 1 1 20rem; max-inline-size: var(--column); }
   .disclosure > summary {
     display: inline-flex;
     align-items: center;
@@ -728,6 +729,9 @@
   /* ---------- Timestamp / Edited ---------- */
   .edited { font-size: var(--step--2); letter-spacing: 0.06em; color: var(--color-ink-2); }
   .edited::before { content: "· "; }
+
+  .page-notice { margin-block: calc(var(--space-6) * -0.5) var(--space-6); }
+  .page-header__actions { margin-block-start: var(--space-5); }
 
   /* ---------- MarginNote ---------- */
   .margin-note {
