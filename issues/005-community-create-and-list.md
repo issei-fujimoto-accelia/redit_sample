@@ -13,7 +13,7 @@ status: created
 
 ## Dependencies
 
-- 002、004
+- 002、004b
 
 ## Scope
 
@@ -32,6 +32,7 @@ status: created
 - 名前の一意性は `UNIQUE COLLATE NOCASE` と trim 後の値で担保する。重複は 409 で入力値付きの再描画。
 - 入力エラーは 400 で入力値とエラーメッセージ付きの再描画。
 - ARCHITECTURE §4.2、§5、§5.1。REQUIREMENTS FR-CM-1、FR-CM-2、FR-C-7、§6.2。
+- 画面は 004b の共通部品（`CommunityCard`、`PageHeader`、`Field` など）で組み、UI_GUIDELINES §9 のセルフチェックを通す。
 
 ## Acceptance criteria
 

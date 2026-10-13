@@ -9,13 +9,14 @@
 - **認証もテストで本番の経路を通す。** テスト用の鍵で署名した JWT を送り、Access の JWT 検証を毎回実行する。
 - **期待値は仕様から書く。** 実装と同じ計算で期待値を作らない。たとえば並び順は、具体的な作成順と時刻から期待する順序を固定値で書く。
 - **ブラウザでしか確かめられないものは手動で確認する。** E2E の自動テストは作らない。
+  - 見た目とアクセシビリティは、`docs/UI_GUIDELINES.md` §9〜10 のデザイン確認（Playwright によるスクリーンショットと axe）で確認する。これは振る舞いを検証するテストではなく、`npm test` には含めない。
 
 ## 2. シーム（テストを書く境界）
 
 | # | シーム | 対象 | 入力 → 観測 |
 |---|---|---|---|
 | S1 | **HTTP 境界** | Worker 全体（ミドルウェア → routes → services → repositories → ローカル D1 → views） | HTTP リクエスト → ステータス、`Location` ヘッダー、HTML の内容 |
-| S2 | **lib の純粋関数** | 入力検証（trim 後の文字数）、表示名の導出、UTC → JST の変換 | 引数 → 戻り値 |
+| S2 | **lib の純粋関数** | 入力検証（trim 後の文字数）、表示名の導出、UTC → JST の変換、コミュニティ色相の導出 | 引数 → 戻り値 |
 
 - services / repositories 単体のテストと、そのためのテストダブルは作らない。削除条件・派生値・本人確認は、S1 で HTTP の応答として観測する。
 - S2 は、境界値を S1 で網羅するとケースが多くなりすぎる関数に限る。S1 と同じ観点を重複して書かない。
@@ -69,7 +70,7 @@
 test/
   setup/apply-migrations.ts
   helpers/            # app 生成（時計・JWKS 注入）、tokenFor、as、html、データ作成
-  lib/                # S2：validation / display-name / time
+  lib/                # S2：validation / display-name / time / community-hue
   http/               # S1
     auth.test.ts
     communities.test.ts
@@ -79,6 +80,7 @@ test/
     listing-community.test.ts
     security.test.ts           # XSS、Origin、他人のリソース
     errors.test.ts             # 404 など
+    styleguide.test.ts         # /_styleguide が dev 以外で 404
 ```
 
 ## 4. 重点的に検証するリスク

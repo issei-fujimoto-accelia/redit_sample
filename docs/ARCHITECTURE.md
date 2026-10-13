@@ -44,7 +44,10 @@ src/
   services/           # 業務ルール：検証、権限、削除可否、派生値の更新
   repositories/       # D1 アクセス：SQL と batch（トランザクション）
   views/              # JSX：レイアウト、4画面、フォーム、エラーページ
-  lib/                # 純粋関数：入力検証、表示名導出、日時変換
+    components/       # 共通部品（docs/UI_GUIDELINES.md §5）
+  lib/                # 純粋関数：入力検証、表示名導出、日時変換、コミュニティ色相
+public/               # Workers Static Assets：CSS、フォント（docs/UI_GUIDELINES.md §8）
+scripts/design/       # デザイン確認用（スクリーンショット、axe）。npm test には含めない
 migrations/
   0001_init.sql
 wrangler.jsonc
@@ -57,7 +60,7 @@ wrangler.jsonc
 | services | 入力検証、作成者本人チェック、削除可否、派生値（`last_posted_at`・`post_count`）を含む更新の組み立て | HTTP、HTML |
 | repositories | SQL の発行、D1 batch による複数文の原子的実行 | 業務判断 |
 | views | HTML の生成。表示名・JST 日時・「編集済み」の表示、作成者本人にのみ修正・削除操作を出す | データ取得 |
-| lib | 文字数検証（trim 後）、表示名導出（`@` より前）、UTC→JST 変換 | 副作用 |
+| lib | 文字数検証（trim 後）、表示名導出（`@` より前）、UTC→JST 変換、コミュニティ色相の導出 | 副作用 |
 
 アプリは `createApp({ now, jwks })` のようなファクトリで生成し、「現在時刻」と「JWT 検証用の鍵セット（JWKS）」を外から注入できるようにする。本番は実時刻とリモート JWKS を渡し、テストは進められる時計とローカル JWKS を渡す（`docs/TEST_STRATEGY.md`）。
 
@@ -176,6 +179,8 @@ HTML フォームから送信するため、更新系はすべて POST とする
 
 - `page` が数値でない、または1未満の場合は1として扱う。範囲外のページは空の一覧を表示する。
 - 編集フォームは各画面に `<details>` で置く。画面数は Requirements の4画面のまま。
+- 開発用に `GET /_styleguide`（共通部品の一覧）を置く。`AUTH_MODE=dev` のときだけ有効で、それ以外は 404（`docs/UI_GUIDELINES.md` §8.3）。
+- 見た目の方針と品質基準は `docs/UI_GUIDELINES.md` に従う。
 
 ### 5.1 エラー応答
 
@@ -259,7 +264,7 @@ POST /t/:id/posts ─▶ auth ─▶ origin ─▶ routes/thread
 | 項目 | 内容 |
 |---|---|
 | デプロイ先 | `<アプリ名>.i-fujimoto.workers.dev`（Workers Free） |
-| 設定ファイル | `wrangler.jsonc`（D1 binding `DB`、`workers_dev: true`、`preview_urls: false`） |
+| 設定ファイル | `wrangler.jsonc`（D1 binding `DB`、`assets.directory: "./public"`、`workers_dev: true`、`preview_urls: false`） |
 | 環境変数 | `TEAM_DOMAIN`、`POLICY_AUD`、`ALLOWED_EMAIL_DOMAIN`（本番）／`AUTH_MODE`、`DEV_USER_EMAIL`（ローカルのみ、`.dev.vars`） |
 | デプロイ | `wrangler d1 migrations apply <DB> --remote` → `wrangler deploy`（手動） |
 | ローカル実行 | `wrangler d1 migrations apply <DB> --local` → `wrangler dev` |

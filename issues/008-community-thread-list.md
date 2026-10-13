@@ -31,6 +31,7 @@ status: created
 - `page` が数値でない・1未満は1扱い、範囲外は空の一覧（200）。ARCHITECTURE §5。
 - 同時刻の並びは `id DESC`（後に作成したものが上）。
 - 全体件数に依存するテストは `listing-community.test.ts` に分ける（TEST_STRATEGY §3.1）。
+- 一覧は 004b の `ThreadList`・`ThreadListItem`・`Pagination` で組む（コミュニティチップなし）。013 でも同じ部品を使う。
 
 ## Acceptance criteria
 

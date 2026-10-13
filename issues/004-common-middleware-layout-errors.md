@@ -19,13 +19,13 @@ CSRF 対策・例外処理・共通レイアウトは全画面で使う土台に
 
 - `src/middleware/origin.ts`：POST の `Origin` を自ホストと照合（Hono の `csrf`）
 - `src/middleware/error.ts`：例外 → 共通エラーページ（403／404／500／503）
-- `src/views/Layout`：ホーム・コミュニティ一覧へのナビゲーション、`white-space: pre-wrap` 用の最低限の CSS
+- `src/views/Layout`：ホーム・コミュニティ一覧へのナビゲーションを持つ HTML の骨格（見た目は 004b で仕上げる）
 - 未定義パスの 404
 
 ## Out of scope
 
 - 各画面の 400／409 の再描画（各機能の Issue で扱う）
-- スマホ向け CSS の仕上げ（014）
+- CSS、デザイントークン、共通部品、エラーページの見た目（004b）
 
 ## Implementation notes
 

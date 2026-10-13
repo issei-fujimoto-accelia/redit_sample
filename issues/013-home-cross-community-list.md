@@ -27,7 +27,8 @@ status: created
 
 ## Implementation notes
 
-- 008 と同じ並び順・ページングの規則を使う。共通化はレビュー段階で判断する。
+- 008 と同じ並び順・ページングの規則を使う。クエリ側の共通化はレビュー段階で判断する。
+- 表示は 008 と同じ `ThreadList`・`ThreadListItem`（コミュニティチップあり）を使う。ホームはコンセプト上もっとも編集的に組む画面（UI_GUIDELINES §4.2）。
 - 全体件数・並び順に依存するため、テストは `listing-home.test.ts` に分ける（TEST_STRATEGY §3.1）。
 
 ## Acceptance criteria

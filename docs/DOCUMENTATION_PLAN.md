@@ -26,6 +26,12 @@
 2. **Architecture を次に作る。** 残りの未決事項（SSR か SPA か）はここで決める。この選択が API の形と Data Design の粒度を左右するため、Requirements の後に置く。
 3. **Test Strategy を最後に作る。** テスト対象の境界（Workers のハンドラ、D1 アクセス、Access の JWT 検証）は Architecture で決まるため、その後に置く。implementation-planning は TDD 前提なので、ここで実行環境（例：Workers 向けのテストランナー、D1 のローカル実行）まで決めておく。
 
+### 追加したドキュメント
+
+| ドキュメント | ファイル | 目的 | 追加の経緯 |
+|---|---|---|---|
+| UI Guidelines | `docs/UI_GUIDELINES.md` | 見た目の方針、デザイントークン、共通部品、品質基準とセルフチェック | Issue 作成後に、デザインの方針と共通部品が未定であることがわかったため追加。品質目標は Awwwards・Webby Awards・FWA で受賞できる水準 |
+
 ## 3. 他の文書に含める関心事
 
 独立した文書は作らず、以下のセクションとして扱う。
