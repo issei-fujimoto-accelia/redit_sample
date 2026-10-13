@@ -13,12 +13,14 @@ export const SCHEMES = ["light", "dark"];
 
 /** 対象ページ。各 Issue で画面を追加したらここに足す */
 export const PAGES = [
+  { name: "home", path: "/" },
+  { name: "home-page2", path: "/?page=2" },
   { name: "communities", path: "/c" },
   { name: "community", path: "/c/1" },
   { name: "community-empty", path: "/c/5" },
   { name: "community-paged", path: "/c/3?page=2" },
-  { name: "thread", path: "/t/1" },
-  { name: "thread-xss", path: "/t/6" },
+  { name: "thread", path: "/t/22" },
+  { name: "thread-xss", path: "/t/27" },
   { name: "community-long", path: "/c/6" },
   { name: "styleguide", path: "/_styleguide" },
   { name: "error-403", path: "/_styleguide/error/403" },
