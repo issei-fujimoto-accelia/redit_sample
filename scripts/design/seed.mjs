@@ -48,6 +48,10 @@ const THREADS = [
   { c: "設計とアーキテクチャ", title: "派生値を threads に持つ設計（ADR-3）", body: "post_count と last_posted_at を持たせる判断について。", replies: 0 },
 ];
 
+// コミュニティページのページング確認用（21件）。ホームでは古い側に回るよう先に作る
+const paging = ids["雑談"];
+if (paging) for (let i = 1; i <= 21; i++) await post(`/c/${paging}/threads`, { title: `ページング確認用のスレッド ${i}`, body: "本文" });
+
 const threadIds = {};
 for (const t of THREADS) {
   const cid = ids[t.c];
@@ -61,7 +65,4 @@ for (const t of THREADS) {
   }
   console.log(`thread ${r.status} ${t.title.slice(0, 20)} (+${t.replies})`);
 }
-// コミュニティページのページング確認用（21件）
-const paging = ids["雑談"];
-if (paging) for (let i = 1; i <= 21; i++) await post(`/c/${paging}/threads`, { title: `ページング確認用のスレッド ${i}`, body: "本文" });
 console.log(JSON.stringify(threadIds));

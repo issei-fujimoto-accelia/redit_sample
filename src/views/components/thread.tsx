@@ -146,7 +146,7 @@ export function ThreadList(p: ThreadListProps) {
   }
   return (
     <>
-      <ol class="thread-list" role="list" style={`--start: ${(p.page - 1) * perPage}`}>
+      <ol class={p.page === 1 ? "thread-list thread-list--first" : "thread-list"} role="list" style={`--start: ${(p.page - 1) * perPage}`}>
         {p.threads.map((t) => (
           <ThreadListItem thread={t} showCommunity={p.showCommunity} />
         ))}
