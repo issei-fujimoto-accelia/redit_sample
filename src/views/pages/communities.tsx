@@ -77,9 +77,11 @@ type PageProps = {
   edit?: FormState;
   /** 削除できない理由（409） */
   deleteError?: string;
+  /** スレッド作成の 400 */
+  newThread?: FormState;
 };
 
-export function CommunityPage({ user, community: c, edit, deleteError }: PageProps) {
+export function CommunityPage({ user, community: c, edit, deleteError, newThread }: PageProps) {
   const isOwner = c.author_email === user;
   const editState: FormState = edit ?? { values: { name: c.name, description: c.description }, errors: {} };
   return (
@@ -132,8 +134,32 @@ export function CommunityPage({ user, community: c, edit, deleteError }: PagePro
             page={1}
             hasNext={false}
             baseUrl={`/c/${c.id}`}
-            emptyBody="最初のスレッドを立てて、議論を始めましょう。"
+            emptyBody="下のフォームから最初のスレッドを立てて、議論を始めましょう。"
           />
+        </section>
+        <section class="col-main" id="new-thread" aria-label="スレッドを立てる">
+          <Form action={`/c/${c.id}/threads`} title="スレッドを立てる" submitLabel="投稿する" panel errors={errorList(newThread)}>
+            <Field
+              formId="new-thread"
+              name="title"
+              label="タイトル"
+              max={RULES.threadTitle.max}
+              required
+              value={newThread?.values.title}
+              error={newThread?.errors.title}
+            />
+            <Field
+              formId="new-thread"
+              name="body"
+              label="本文"
+              max={RULES.postBody.max}
+              required
+              multiline
+              rows={6}
+              value={newThread?.values.body}
+              error={newThread?.errors.body}
+            />
+          </Form>
         </section>
       </div>
     </Layout>

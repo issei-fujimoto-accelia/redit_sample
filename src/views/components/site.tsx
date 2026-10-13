@@ -109,16 +109,19 @@ type PageHeaderProps = {
   /** コミュニティ色相。指定するとコミュニティの見出しとして組む */
   hue?: number;
   actions?: Child;
+  /** 見出しの文字数（長い見出しを一段小さく組む判定に使う）。title が文字列なら自動で数える */
+  titleLength?: number;
 };
 
-export function PageHeader({ eyebrow, title, description, hue, actions }: PageHeaderProps) {
+export function PageHeader({ eyebrow, title, description, hue, actions, titleLength }: PageHeaderProps) {
+  const long = titleLength !== undefined ? titleLength > 24 : isLong(title);
   return (
     <header
       class={hue === undefined ? "page-header" : "page-header page-header--community"}
       style={hue === undefined ? undefined : `--community-hue: ${hue}`}
     >
       {eyebrow && <p class="page-header__eyebrow">{eyebrow}</p>}
-      <h1 class={isLong(title) ? "page-header__title page-header__title--long" : "page-header__title"}>{title}</h1>
+      <h1 class={long ? "page-header__title page-header__title--long" : "page-header__title"}>{title}</h1>
       {description && <p class="page-header__desc">{description}</p>}
       {actions && <div class="page-header__actions">{actions}</div>}
     </header>

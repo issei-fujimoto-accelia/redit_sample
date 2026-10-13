@@ -647,7 +647,7 @@
 
   /* ---------- Forms / Field ---------- */
   .form { display: grid; gap: var(--space-5); max-inline-size: var(--column); }
-  .disclosure__panel .form { max-inline-size: none; }
+  .disclosure__panel .form, .col-main > .form { max-inline-size: none; }
   .form--panel { padding: var(--space-5); border: var(--line-width) solid var(--color-line); background: var(--color-paper-2); }
   .form__title { font-size: var(--step-1); }
   .form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
