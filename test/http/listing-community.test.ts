@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createClock, createCommunity, createThread, html, setup, unique } from "../helpers";
+import { createClock, createCommunity, createThread, html, reply, setup, unique } from "../helpers";
 
 const alice = "alice@example.com";
 const bob = "bob@example.com";
@@ -91,5 +91,31 @@ describe("コミュニティページのスレッド一覧", () => {
     const page = await html(res);
     expect(threadOrder(page.links)).toEqual([]);
     expect(page.has("このページにスレッドはありません")).toBe(true);
+  });
+});
+
+describe("返信による一覧の更新", () => {
+  it("返信後、コミュニティページの投稿数が 2 になる", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    await reply(as(bob), tid);
+    expect((await html(await as(alice).get(`/c/${cid}`))).text).toMatch(/2 件の投稿/);
+  });
+
+  it("古いスレッドに返信すると、コミュニティページで先頭に移動し、最終投稿日時が更新される", async () => {
+    const clock = createClock("2026-01-01T00:00:00.000Z");
+    const { as } = setup({ clock });
+    const cid = await createCommunity(as(alice));
+    const old = await createThread(as(alice), cid);
+    clock.set("2026-01-02T00:00:00.000Z");
+    const recent = await createThread(as(alice), cid);
+    expect(threadOrder((await html(await as(alice).get(`/c/${cid}`))).links)).toEqual([recent, old]);
+
+    clock.set("2026-01-03T03:00:00.000Z");
+    await reply(as(bob), old);
+    const page = await html(await as(alice).get(`/c/${cid}`));
+    expect(threadOrder(page.links)).toEqual([old, recent]);
+    expect(page.has("2026-01-03 12:00")).toBe(true);
   });
 });

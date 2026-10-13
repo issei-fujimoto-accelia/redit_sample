@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 010 返信の投稿
@@ -33,10 +33,10 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] 返信すると投稿一覧の末尾に表示される
-- [ ] 投稿が古い順に並び、ネストされない
-- [ ] 返信でスレッドの投稿数と最終投稿日時が更新され、コミュニティページの並び順に反映される
-- [ ] 共通 DoD
+- [x] 返信すると投稿一覧の末尾に表示される
+- [x] 投稿が古い順に並び、ネストされない
+- [x] 返信でスレッドの投稿数と最終投稿日時が更新され、コミュニティページの並び順に反映される
+- [x] 共通 DoD
 
 ## Tests（S1：`test/http/posts.test.ts`、`listing-community.test.ts`）
 
@@ -46,3 +46,9 @@ status: created
 - 古いスレッドに返信すると、コミュニティページで先頭に移動する
 - 本文空・10,001文字 → 400
 - 存在しないスレッドへの返信 → 404
+
+## 実装メモ
+
+- `insertReply`：`INSERT ... SELECT ... WHERE EXISTS (スレッド)` と `post_count + 1`・`last_posted_at` の UPDATE を1つの batch で実行。スレッドが同時に消えていれば 404。
+- 400 は入力値を保持し、返信欄にフォーカスして再描画する。
+- セルフチェック：`design/rounds/11/review.md`（合格）。
