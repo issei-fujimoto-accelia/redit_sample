@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 004b UI 基盤とデザインシステム
@@ -50,16 +50,16 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] アプリ名・ワードマーク・欧文書体が決まり、UI_GUIDELINES §11 が更新されている
-- [ ] UI_GUIDELINES §5 の全部品がスタイルガイドページに表示される
-- [ ] UI_GUIDELINES §6.3 の状態がスタイルガイドページで確認できる
-- [ ] ライト／ダーク、390px／1440px で崩れない
-- [ ] `/_styleguide` は `AUTH_MODE=dev` 以外では 404
-- [ ] `npm run design:audit` で axe の違反が0件
-- [ ] UI_GUIDELINES §8.2 の予算内
-- [ ] セルフチェックで全評価軸が8点以上（`design/rounds/NN/review.md` に記録）。5ラウンドで未達の場合は、未達の内容を記録してユーザーに判断を仰いでいる
-- [ ] ユーザーがスタイルガイドページをレビューし、承認している
-- [ ] 共通 DoD
+- [x] アプリ名・ワードマーク・欧文書体が決まり、UI_GUIDELINES §11 が更新されている
+- [x] UI_GUIDELINES §5 の全部品がスタイルガイドページに表示される
+- [x] UI_GUIDELINES §6.3 の状態がスタイルガイドページで確認できる
+- [x] ライト／ダーク、390px／1440px で崩れない
+- [x] `/_styleguide` は `AUTH_MODE=dev` 以外では 404
+- [x] `npm run design:audit` で axe の違反が0件
+- [x] UI_GUIDELINES §8.2 の予算内
+- [x] セルフチェックで全評価軸が8点以上（`design/rounds/NN/review.md` に記録）。5ラウンドで未達の場合は、未達の内容を記録してユーザーに判断を仰いでいる
+- [x] ユーザーがスタイルガイドページをレビューし、承認している
+- [x] 共通 DoD
 
 ## Tests
 
@@ -77,3 +77,12 @@ status: created
 ### S1：既存テストの回帰確認
 
 - Layout とエラーページの変更後も、001〜004 のテストが全件成功する
+
+## 実装メモ
+
+- アプリ名 **Marginalia**、欧文書体 **Fraunces**（ユーザー決定）。UI_GUIDELINES §2.2・§3・§11 を更新した。
+- 部品：`src/views/components/`（site / community / thread / post / form / common）。`Layout` は `components/site.tsx` に移した。
+- スタイルガイド：`GET /_styleguide`、エラーページ見本 `GET /_styleguide/error/:status`（どちらも `AUTH_MODE=dev` のみ）。
+- 状態の見本はスタイルガイド専用のクラス（`.is-hover`・`.is-focus` など）で強制表示している。
+- デザイン確認：`npm run design:capture` / `design:audit` / `design:budget`（`design:seed` は画面ができ次第データを追加する）。`CHROMIUM_PATH` で実行ファイルを指定可能。
+- セルフチェック：Round 01〜05（`design/rounds/*/review.md`）。Round 03・05 で独立エージェントの採点を実施。最終は自己採点で全軸8点以上、axe 0 件、CSS 32.9KB／Font 65.7KB。5ラウンドに達したため、ユーザーの判断を仰ぎ承認を得た。

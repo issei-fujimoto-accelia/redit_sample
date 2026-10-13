@@ -5,3 +5,4 @@ node_modules/
 .wrangler/
 .dev.vars
 coverage/
+design/rounds/**/*.png

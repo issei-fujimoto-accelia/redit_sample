@@ -9,16 +9,22 @@
     "typecheck": "tsc --noEmit",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "design:seed": "node scripts/design/seed.mjs",
+    "design:capture": "node scripts/design/capture.mjs",
+    "design:audit": "node scripts/design/audit.mjs",
+    "design:budget": "node scripts/design/budget.mjs"
   },
   "dependencies": {
     "hono": "^4.13.13",
     "jose": "^6.2.12"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@cloudflare/vitest-plugin": "^1.4.1",
     "@cloudflare/workers-types": "^5.20261013.1",
     "@vitest/coverage-istanbul": "^5.0.4",
+    "playwright": "^1.56.0",
     "typescript": "^7.0.2",
     "vitest": "^5.0.4",
     "wrangler": "^4.150.0"

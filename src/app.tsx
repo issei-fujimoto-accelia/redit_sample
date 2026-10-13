@@ -2,8 +2,9 @@ import { Hono } from "hono";
 import { auth } from "./middleware/auth";
 import { notFound, onError } from "./middleware/error";
 import { origin } from "./middleware/origin";
+import { devRoutes } from "./routes/dev";
 import type { AppDeps, AppEnv } from "./types";
-import { Layout } from "./views/Layout";
+import { Layout, PageHeader } from "./views/components/site";
 import { render } from "./views/render";
 
 export function createApp(deps: AppDeps) {
@@ -17,11 +18,13 @@ export function createApp(deps: AppDeps) {
   app.get("/", (c) =>
     render(
       c,
-      <Layout title="ホーム" user={c.var.user} current="home">
-        <h1>ホーム</h1>
+      <Layout user={c.var.user} current="home">
+        <PageHeader title="ホーム" />
       </Layout>,
     ),
   );
+
+  app.route("/_styleguide", devRoutes);
 
   return app;
 }
