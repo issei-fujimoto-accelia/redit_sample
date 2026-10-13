@@ -1,27 +1,25 @@
 import { Hono } from "hono";
-import { displayName } from "./lib/display-name";
 import { auth } from "./middleware/auth";
+import { notFound, onError } from "./middleware/error";
+import { origin } from "./middleware/origin";
 import type { AppDeps, AppEnv } from "./types";
+import { Layout } from "./views/Layout";
+import { render } from "./views/render";
 
 export function createApp(deps: AppDeps) {
   const app = new Hono<AppEnv>();
 
+  app.onError(onError);
+  app.notFound(notFound);
   app.use("*", auth(deps));
+  app.use("*", origin());
 
   app.get("/", (c) =>
-    c.html(
-      <html lang="ja">
-        <body>
-          <nav>
-            <a href="/">ホーム</a>
-            <a href="/c">コミュニティ</a>
-            <span>{displayName(c.var.user)}</span>
-          </nav>
-          <main>
-            <h1>ホーム</h1>
-          </main>
-        </body>
-      </html>,
+    render(
+      c,
+      <Layout title="ホーム" user={c.var.user} current="home">
+        <h1>ホーム</h1>
+      </Layout>,
     ),
   );
 
