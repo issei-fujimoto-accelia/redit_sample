@@ -27,7 +27,11 @@ export function threadRoutes(deps: AppDeps) {
     const result = await svc.deleteThread(c.env.DB, c.var.user, id);
     if (result.ok) return c.redirect(`/c/${result.value}`, 303);
     const data = await svc.getThreadWithPosts(c.env.DB, id);
-    return render(c, <ThreadPage user={c.var.user} {...data} deleteError={result.errors.delete} />, result.status);
+    return render(c, <ThreadPage
+        user={c.var.user}
+        {...data}
+        deleteError={{ title: "このスレッドは削除できません", body: result.errors.delete ?? "" }}
+      />, result.status);
   });
 
   r.post("/:id/posts", async (c) => {

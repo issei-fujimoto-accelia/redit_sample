@@ -17,12 +17,14 @@ type Props = {
   /** タイトル修正の 400 */
   editTitle?: FormState;
   /** 削除できない理由（409） */
-  deleteError?: string;
+  deleteError?: { title: string; body: string };
+  /** 投稿の修正の 400 */
+  editPost?: { id: number; state: FormState };
   /** 返信の 400 */
   newReply?: FormState;
 };
 
-export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, newReply }: Props) {
+export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, editPost, newReply }: Props) {
   const hue = communityHue(t.community_id);
   const isOwner = t.author_email === user;
   return (
@@ -67,8 +69,8 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, new
       />
       {deleteError && (
         <div class="page-notice">
-          <Notice tone="error" title="このスレッドは削除できません">
-            {deleteError}
+          <Notice tone="error" title={deleteError.title}>
+            {deleteError.body}
           </Notice>
         </div>
       )}
@@ -91,6 +93,7 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, new
             {posts.map((p, i) => (
               <PostItem
                 no={i + 1}
+                actions={<PostActions user={user} post={p} edit={editPost?.id === p.id ? editPost.state : undefined} />}
                 post={{
                   id: p.id,
                   body: p.body,
@@ -121,5 +124,33 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, new
         </section>
       </div>
     </Layout>
+  );
+}
+
+function PostActions({ user, post: p, edit }: { user: string; post: PostRecord; edit?: FormState }) {
+  const isOpening = p.is_opening === 1;
+  return (
+    <OwnerActions
+      isOwner={p.author_email === user}
+      editOpen={edit !== undefined}
+      editLabel={isOpening ? "本文を編集" : "編集"}
+      edit={
+        <Form action={`/p/${p.id}/edit`} submitLabel="保存する" errors={errorList(edit)}>
+          <Field
+            formId={`edit-post-${p.id}`}
+            name="body"
+            label="本文"
+            max={RULES.postBody.max}
+            required
+            multiline
+            rows={5}
+            value={edit?.values.body ?? p.body}
+            error={edit?.errors.body}
+          />
+        </Form>
+      }
+      deleteAction={isOpening ? undefined : `/p/${p.id}/delete`}
+      deleteConfirm="この返信を削除しますか？この操作は取り消せません。"
+    />
   );
 }

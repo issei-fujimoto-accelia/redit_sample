@@ -76,3 +76,92 @@ describe("返信の投稿", () => {
     expect((await as(alice).post("/t/999999/posts", { body: "x" })).status).toBe(404);
   });
 });
+
+/** スレッドページから本文（先頭の投稿）の ID を取り出す */
+const openingId = async (client: ReturnType<ReturnType<typeof setup>["as"]>, tid: number) =>
+  postOrder((await html(await client.get(`/t/${tid}`))).raw)[0]!;
+
+describe("投稿の修正", () => {
+  it("本文の修正 → 303 /t/:id#post-:id、新しい本文と「編集済み」", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid, { body: "直す前の本文" });
+    const pid = await openingId(as(alice), tid);
+    expect((await html(await as(alice).get(`/t/${tid}`))).has("編集済み")).toBe(false);
+    const res = await as(alice).post(`/p/${pid}/edit`, { body: "直した本文" });
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/t/${tid}#post-${pid}`);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has("直した本文")).toBe(true);
+    expect(page.has("直す前の本文")).toBe(false);
+    expect(page.has("編集済み")).toBe(true);
+  });
+
+  it("返信の修正 → 303、新しい本文と「編集済み」", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const rid = await reply(as(bob), tid, "直す前の返信");
+    const res = await as(bob).post(`/p/${rid}/edit`, { body: "直した返信" });
+    expect(res.status).toBe(303);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has("直した返信")).toBe(true);
+    expect(page.has("編集済み")).toBe(true);
+  });
+
+  it("修正で本文を空 → 400、元の本文は変わらない", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const rid = await reply(as(alice), tid, "残る返信");
+    const res = await as(alice).post(`/p/${rid}/edit`, { body: "" });
+    expect(res.status).toBe(400);
+    expect((await html(res)).has("本文を入力してください。")).toBe(true);
+    expect((await html(await as(alice).get(`/t/${tid}`))).has("残る返信")).toBe(true);
+  });
+
+  it("本人には投稿ごとに修正の操作、返信にだけ削除の操作が表示される", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const pid = await openingId(as(alice), tid);
+    const rid = await reply(as(alice), tid);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.formActions).toContain(`/p/${pid}/edit`);
+    expect(page.formActions).toContain(`/p/${rid}/edit`);
+    expect(page.formActions).toContain(`/p/${rid}/delete`);
+    expect(page.formActions).not.toContain(`/p/${pid}/delete`);
+  });
+
+  it("存在しない投稿の修正・削除 → 404", async () => {
+    const { as } = setup();
+    expect((await as(alice).post("/p/999999/edit", { body: "x" })).status).toBe(404);
+    expect((await as(alice).post("/p/999999/delete")).status).toBe(404);
+  });
+});
+
+describe("返信の削除", () => {
+  it("返信の削除 → 303 /t/:thread_id、一覧から消え、投稿数が戻る", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const rid = await reply(as(alice), tid, unique("消える返信"));
+    const res = await as(alice).post(`/p/${rid}/delete`);
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/t/${tid}`);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(postOrder(page.raw)).not.toContain(rid);
+    expect((await html(await as(alice).get(`/c/${cid}`))).text).toMatch(/1 件の投稿/);
+  });
+
+  it("本文の削除 POST → 409、本文が残る", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid, { body: "消せない本文" });
+    const pid = await openingId(as(alice), tid);
+    const res = await as(alice).post(`/p/${pid}/delete`);
+    expect(res.status).toBe(409);
+    expect((await html(res)).has("本文は単独では削除できません")).toBe(true);
+    expect((await html(await as(alice).get(`/t/${tid}`))).has("消せない本文")).toBe(true);
+  });
+});

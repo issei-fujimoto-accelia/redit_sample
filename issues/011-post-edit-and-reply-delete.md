@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 011 投稿の修正と返信の削除
@@ -33,11 +33,11 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] 本文・返信を修正すると「編集済み」が表示される
-- [ ] 返信を削除でき、投稿数と最終投稿日時が戻る
-- [ ] 本文には削除操作が表示されず、直接 POST しても 409 で削除されない
-- [ ] 他人の投稿には操作が表示されず、直接 POST しても 403 でデータは変わらない
-- [ ] 共通 DoD
+- [x] 本文・返信を修正すると「編集済み」が表示される
+- [x] 返信を削除でき、投稿数と最終投稿日時が戻る
+- [x] 本文には削除操作が表示されず、直接 POST しても 409 で削除されない
+- [x] 他人の投稿には操作が表示されず、直接 POST しても 403 でデータは変わらない
+- [x] 共通 DoD
 
 ## Tests（S1：`posts.test.ts`、`listing-community.test.ts`、`security.test.ts`）
 
@@ -49,3 +49,10 @@ status: created
 - 最新の返信を削除すると、最終投稿日時がその前の投稿の日時に戻る
 - 本文に削除操作が表示されない。本文の削除 POST → 409、本文が残る
 - 他人の投稿：操作が非表示、修正・削除 POST → 403、内容が変わっていない
+
+## 実装メモ
+
+- 返信削除の batch：`DELETE ... WHERE id = ? AND is_opening = 0 AND author_email = ?` → `post_count`（`COUNT(*)`）と `last_posted_at`（`MAX(created_at)`）を再計算。
+- 本文への削除 POST は事前判定で 409（スレッドページを理由付きで再描画）。
+- 修正は1文の UPDATE で `last_posted_at` を変えない。
+- セルフチェック：`design/rounds/12/review.md`（合格）。

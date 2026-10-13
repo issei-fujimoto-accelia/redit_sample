@@ -720,6 +720,19 @@
   .post__body { max-inline-size: var(--measure); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
   .post--opening .post__body { font-size: var(--step-1); line-height: 1.8; }
   .post--opening .post__no { color: var(--color-accent); }
+  /* 投稿ごとの操作は控えめな文字のボタンにし、本文の読みを妨げない */
+  .post .owner-actions { gap: 0 var(--space-1); margin-inline-start: calc(var(--space-3) * -1); }
+  .post .owner-actions .button {
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-ink-2);
+    font-weight: 600;
+    padding-inline: var(--space-3);
+  }
+  .post .owner-actions .button:hover { color: var(--color-ink); border-color: var(--color-line); background: transparent; }
+  .post .owner-actions .button--danger { color: var(--color-danger); }
+  .post .owner-actions .button--danger:hover { color: var(--color-paper); background: var(--color-danger); border-color: var(--color-danger); }
+  .post .owner-actions .disclosure[open] > summary { color: var(--color-ink); }
   .post:target, .post.is-target { animation: post-target 2.4s var(--ease-out); }
   @keyframes post-target {
     from { background: color-mix(in oklch, var(--color-accent) 16%, transparent); }
