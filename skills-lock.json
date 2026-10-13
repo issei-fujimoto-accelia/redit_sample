@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "create-local-issue": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "create-local-issue/SKILL.md",
+      "computedHash": "840b4b86dd83b58212f932a88209c4a3b4430a64661dfb16087f8bb9b4a675c8"
+    },
+    "document-interview": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "document-interview/SKILL.md",
+      "computedHash": "8eeaeb2aa987fb87760bda801bfba13e373361e5f4b4052023a568f920a5c601"
+    },
+    "documentation-planning": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "documentation-planning/SKILL.md",
+      "computedHash": "c64b0b289622e5876eb02656216cf41114f7159df20c58c9907a8a54ae89bd80"
+    },
+    "grill-me-with-goal": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "grill-me-with-goal/SKILL.md",
+      "computedHash": "66b580f613e11dac051861df4a88b0175421383d4baa77e098f9a4a9e842e36b"
+    },
+    "implementation-planning": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "implementation-planning/SKILL.md",
+      "computedHash": "7c563d73c2f2a6a1a5518c90ea6b4018847143f88e68de1a30b238a8fd25608d"
+    },
+    "issue-planning": {
+      "source": "issei-fujimoto-accelia/base_skills",
+      "sourceType": "github",
+      "skillPath": "issue-planning/SKILL.md",
+      "computedHash": "5e1bc11c50add3c3cb0e4e81ce627acf72abeac32e60613f2a67a57613665492"
+    }
+  }
+}
