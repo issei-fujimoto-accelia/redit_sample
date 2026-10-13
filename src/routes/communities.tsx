@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import * as svc from "../services/communities";
+import * as threads from "../services/threads";
 import { parseId } from "../services/result";
 import type { AppDeps, AppEnv } from "../types";
 import { CommunityListPage, CommunityPage } from "../views/pages/communities";
@@ -45,6 +46,15 @@ export function communityRoutes(deps: AppDeps) {
       <CommunityPage user={c.var.user} community={community} deleteError={result.errors.delete} />,
       result.status,
     );
+  });
+
+  r.post("/:id/threads", async (c) => {
+    const id = parseId(c.req.param("id"));
+    const form = await c.req.parseBody();
+    const result = await threads.createThread(c.env.DB, c.var.user, deps.now(), id, form);
+    if (result.ok) return c.redirect(`/t/${result.value}`, 303);
+    const community = await svc.getCommunity(c.env.DB, id);
+    return render(c, <CommunityPage user={c.var.user} community={community} newThread={result} />, result.status);
   });
 
   return r;

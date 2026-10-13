@@ -15,7 +15,10 @@ export const SCHEMES = ["light", "dark"];
 export const PAGES = [
   { name: "communities", path: "/c" },
   { name: "community", path: "/c/1" },
-  { name: "community-empty", path: "/c/3" },
+  { name: "community-empty", path: "/c/5" },
+  { name: "community-paged", path: "/c/3?page=2" },
+  { name: "thread", path: "/t/1" },
+  { name: "thread-xss", path: "/t/6" },
   { name: "community-long", path: "/c/6" },
   { name: "styleguide", path: "/_styleguide" },
   { name: "error-403", path: "/_styleguide/error/403" },
