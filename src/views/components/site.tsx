@@ -118,11 +118,9 @@ export function PageHeader({ eyebrow, title, description, hue, actions }: PageHe
       style={hue === undefined ? undefined : `--community-hue: ${hue}`}
     >
       {eyebrow && <p class="page-header__eyebrow">{eyebrow}</p>}
-      <div class="page-header__row">
-        <h1 class={isLong(title) ? "page-header__title page-header__title--long" : "page-header__title"}>{title}</h1>
-        {actions && <div class="page-header__actions">{actions}</div>}
-      </div>
+      <h1 class={isLong(title) ? "page-header__title page-header__title--long" : "page-header__title"}>{title}</h1>
       {description && <p class="page-header__desc">{description}</p>}
+      {actions && <div class="page-header__actions">{actions}</div>}
     </header>
   );
 }

@@ -35,3 +35,31 @@ export async function insertCommunity(
 export function isUniqueViolation(err: unknown): boolean {
   return err instanceof Error && /UNIQUE constraint failed/i.test(err.message);
 }
+
+/** 本人のときだけ更新する。更新した行数を返す */
+export async function updateCommunity(
+  db: D1Database,
+  row: { id: number; authorEmail: string; name: string; description: string; updatedAt: string },
+): Promise<number> {
+  const r = await db
+    .prepare("UPDATE communities SET name = ?, description = ?, updated_at = ? WHERE id = ? AND author_email = ?")
+    .bind(row.name, row.description, row.updatedAt, row.id, row.authorEmail)
+    .run();
+  return r.meta.changes;
+}
+
+/** 本人で、かつスレッドがないときだけ削除する。削除した行数を返す */
+export async function deleteCommunity(db: D1Database, id: number, authorEmail: string): Promise<number> {
+  const r = await db
+    .prepare(
+      "DELETE FROM communities WHERE id = ? AND author_email = ? AND NOT EXISTS (SELECT 1 FROM threads WHERE community_id = communities.id)",
+    )
+    .bind(id, authorEmail)
+    .run();
+  return r.meta.changes;
+}
+
+export async function hasThreads(db: D1Database, id: number): Promise<boolean> {
+  const r = await db.prepare("SELECT 1 AS x FROM threads WHERE community_id = ? LIMIT 1").bind(id).first();
+  return r !== null;
+}
