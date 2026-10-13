@@ -18,9 +18,11 @@ type Props = {
   editTitle?: FormState;
   /** 削除できない理由（409） */
   deleteError?: string;
+  /** 返信の 400 */
+  newReply?: FormState;
 };
 
-export function ThreadPage({ user, thread: t, posts, editTitle, deleteError }: Props) {
+export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, newReply }: Props) {
   const hue = communityHue(t.community_id);
   const isOwner = t.author_email === user;
   return (
@@ -100,6 +102,22 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError }: P
               />
             ))}
           </PostList>
+        </section>
+        <section class="col-main" id="reply" aria-label="返信する">
+          <Form action={`/t/${t.id}/posts`} title="返信する" submitLabel="返信する" panel errors={errorList(newReply)}>
+            <Field
+              formId="reply"
+              name="body"
+              label="本文"
+              max={RULES.postBody.max}
+              required
+              multiline
+              rows={5}
+              value={newReply?.values.body}
+              error={newReply?.errors.body}
+              autofocus={newReply !== undefined}
+            />
+          </Form>
         </section>
       </div>
     </Layout>
