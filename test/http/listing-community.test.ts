@@ -119,3 +119,38 @@ describe("返信による一覧の更新", () => {
     expect(page.has("2026-01-03 12:00")).toBe(true);
   });
 });
+
+describe("返信の修正・削除による一覧の更新", () => {
+  it("返信を修正しても、最終投稿日時と並び順は変わらない", async () => {
+    const clock = createClock("2026-01-01T00:00:00.000Z");
+    const { as } = setup({ clock });
+    const cid = await createCommunity(as(alice));
+    const a = await createThread(as(alice), cid);
+    const rid = await reply(as(alice), a);
+    clock.set("2026-01-02T00:00:00.000Z");
+    const b = await createThread(as(alice), cid);
+    clock.set("2026-01-05T00:00:00.000Z");
+    await as(alice).post(`/p/${rid}/edit`, { body: "修正" });
+    const page = await html(await as(alice).get(`/c/${cid}`));
+    expect(threadOrder(page.links)).toEqual([b, a]);
+    expect(page.has("2026-01-05 09:00")).toBe(false);
+  });
+
+  it("最新の返信を削除すると、最終投稿日時がその前の投稿の日時に戻り、並び順に反映される", async () => {
+    const clock = createClock("2026-01-01T00:00:00.000Z");
+    const { as } = setup({ clock });
+    const cid = await createCommunity(as(alice));
+    const a = await createThread(as(alice), cid);
+    clock.set("2026-01-02T00:00:00.000Z");
+    const b = await createThread(as(alice), cid);
+    clock.set("2026-01-03T00:00:00.000Z");
+    const rid = await reply(as(alice), a);
+    expect(threadOrder((await html(await as(alice).get(`/c/${cid}`))).links)).toEqual([a, b]);
+
+    await as(alice).post(`/p/${rid}/delete`);
+    const page = await html(await as(alice).get(`/c/${cid}`));
+    expect(threadOrder(page.links)).toEqual([b, a]);
+    expect(page.has("2026-01-01 09:00")).toBe(true);
+    expect(page.has("2026-01-03 09:00")).toBe(false);
+  });
+});

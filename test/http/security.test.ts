@@ -82,3 +82,23 @@ describe("他人のスレッド", () => {
     expect(page.has("編集済み")).toBe(false);
   });
 });
+
+describe("他人の投稿", () => {
+  const alice = "alice@example.com";
+  const bob = "bob@example.com";
+
+  it("他人の投稿には操作が表示されず、修正・削除 POST → 403、内容が変わらない", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const res = await as(alice).post(`/t/${tid}/posts`, { body: "alice の返信" });
+    const rid = Number(res.headers.get("Location")!.split("#post-")[1]);
+    const page = await html(await as(bob).get(`/t/${tid}`));
+    expect(page.formActions.some((a) => a.startsWith("/p/"))).toBe(false);
+    expect((await as(bob).post(`/p/${rid}/edit`, { body: "書き換え" })).status).toBe(403);
+    expect((await as(bob).post(`/p/${rid}/delete`)).status).toBe(403);
+    const after = await html(await as(alice).get(`/t/${tid}`));
+    expect(after.has("alice の返信")).toBe(true);
+    expect(after.has("編集済み")).toBe(false);
+  });
+});

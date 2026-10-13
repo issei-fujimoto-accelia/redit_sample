@@ -40,3 +40,38 @@ export async function insertReply(
   ]);
   return inserted!.results[0]?.id ?? null;
 }
+
+export function findPost(db: D1Database, id: number) {
+  return db.prepare(`SELECT ${COLUMNS} FROM posts WHERE id = ?`).bind(id).first<PostRecord>();
+}
+
+/** 本人のときだけ本文を更新する。スレッドの `last_posted_at` は変えない */
+export async function updatePostBody(
+  db: D1Database,
+  row: { id: number; authorEmail: string; body: string; updatedAt: string },
+): Promise<number> {
+  const r = await db
+    .prepare("UPDATE posts SET body = ?, updated_at = ? WHERE id = ? AND author_email = ?")
+    .bind(row.body, row.updatedAt, row.id, row.authorEmail)
+    .run();
+  return r.meta.changes;
+}
+
+/**
+ * 本人の返信を削除し、スレッドの投稿数と最終投稿日時を残りの投稿から再計算する（減算はしない）。
+ * 削除した行数を返す。
+ */
+export async function deleteReply(db: D1Database, id: number, threadId: number, authorEmail: string): Promise<number> {
+  const [deleted] = await db.batch([
+    db.prepare("DELETE FROM posts WHERE id = ? AND is_opening = 0 AND author_email = ?").bind(id, authorEmail),
+    db
+      .prepare(
+        `UPDATE threads SET
+           post_count = (SELECT COUNT(*) FROM posts WHERE thread_id = ?1),
+           last_posted_at = COALESCE((SELECT MAX(created_at) FROM posts WHERE thread_id = ?1), last_posted_at)
+         WHERE id = ?1`,
+      )
+      .bind(threadId),
+  ]);
+  return deleted!.meta.changes;
+}
