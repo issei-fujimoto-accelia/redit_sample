@@ -14,6 +14,29 @@ export type ThreadRow = {
   updatedAt: string | null;
 };
 
+/** リポジトリの行を一覧の表示用に変換する */
+export function toThreadRow(t: {
+  id: number;
+  title: string;
+  community_id: number;
+  community_name: string;
+  author_email: string;
+  post_count: number;
+  last_posted_at: string;
+  updated_at: string | null;
+}): ThreadRow {
+  return {
+    id: t.id,
+    title: t.title,
+    communityId: t.community_id,
+    communityName: t.community_name,
+    authorEmail: t.author_email,
+    postCount: t.post_count,
+    lastPostedAt: t.last_posted_at,
+    updatedAt: t.updated_at,
+  };
+}
+
 type ThreadListItemProps = {
   thread: ThreadRow;
   /** ホームの横断一覧ではコミュニティ名を出す */

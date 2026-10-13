@@ -42,3 +42,19 @@ export async function getThreadWithPosts(db: D1Database, id: number) {
   const thread = await getThread(db, id);
   return { thread, posts: await posts.listPosts(db, id) };
 }
+
+export const PER_PAGE = 20;
+
+/** `?page=` を解釈する。数値でない・1未満は1（ARCHITECTURE §5） */
+export function parsePage(raw: string | undefined): number {
+  if (!raw || !/^\d+$/.test(raw)) return 1;
+  const n = Number(raw);
+  return n >= 1 && Number.isSafeInteger(n) ? n : 1;
+}
+
+export type ThreadPage = { threads: repo.ThreadRecord[]; page: number; hasNext: boolean };
+
+export async function listThreads(db: D1Database, page: number, communityId?: number): Promise<ThreadPage> {
+  const rows = await repo.listThreads(db, { communityId, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
+  return { threads: rows.slice(0, PER_PAGE), page, hasNext: rows.length > PER_PAGE };
+}

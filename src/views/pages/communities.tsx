@@ -6,7 +6,8 @@ import { CommunityGrid } from "../components/community";
 import { Edited, EmptyState, MarginNote, Notice, Timestamp } from "../components/common";
 import { Field, Form, OwnerActions } from "../components/form";
 import { Layout, PageHeader } from "../components/site";
-import { ThreadList } from "../components/thread";
+import { ThreadList, toThreadRow } from "../components/thread";
+import type { ThreadPage } from "../../services/threads";
 import { errorList, type FormState } from "../form-state";
 
 function CommunityFields({ formId, state }: { formId: string; state?: FormState }) {
@@ -73,6 +74,7 @@ export function CommunityListPage({ user, communities, create }: ListProps) {
 type PageProps = {
   user: string;
   community: CommunityRecord;
+  list: ThreadPage;
   /** 修正の 400／409 */
   edit?: FormState;
   /** 削除できない理由（409） */
@@ -81,7 +83,7 @@ type PageProps = {
   newThread?: FormState;
 };
 
-export function CommunityPage({ user, community: c, edit, deleteError, newThread }: PageProps) {
+export function CommunityPage({ user, community: c, list, edit, deleteError, newThread }: PageProps) {
   const isOwner = c.author_email === user;
   const editState: FormState = edit ?? { values: { name: c.name, description: c.description }, errors: {} };
   return (
@@ -127,12 +129,13 @@ export function CommunityPage({ user, community: c, edit, deleteError, newThread
         <section class="col-main" aria-labelledby="threads-title">
           <h2 id="threads-title" class="section-title">
             スレッド
+            {list.page > 1 && <span class="num">{list.page} ページ目</span>}
           </h2>
           <ThreadList
-            threads={[]}
+            threads={list.threads.map(toThreadRow)}
             showCommunity={false}
-            page={1}
-            hasNext={false}
+            page={list.page}
+            hasNext={list.hasNext}
             baseUrl={`/c/${c.id}`}
             emptyBody="下のフォームから最初のスレッドを立てて、議論を始めましょう。"
           />
