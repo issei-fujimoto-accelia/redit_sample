@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 002 lib の純粋関数（入力検証・表示名・JST 変換）
@@ -33,9 +33,9 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] REQUIREMENTS §6.2 の必須・上限の判定が関数で行える
-- [ ] 表示名・JST 変換が仕様どおり
-- [ ] 共通 DoD（`npm test`・`npm run typecheck` 成功）
+- [x] REQUIREMENTS §6.2 の必須・上限の判定が関数で行える
+- [x] 表示名・JST 変換が仕様どおり
+- [x] 共通 DoD（`npm test`・`npm run typecheck` 成功）
 
 ## Tests（S2：`test/lib/`）
 
