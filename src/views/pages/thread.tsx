@@ -3,7 +3,10 @@ import { displayName } from "../../lib/display-name";
 import type { PostRecord } from "../../repositories/posts";
 import type { ThreadRecord } from "../../repositories/threads";
 import { CommunityChip } from "../components/community";
-import { Edited, MarginNote, Timestamp } from "../components/common";
+import { Edited, MarginNote, Notice, Timestamp } from "../components/common";
+import { Field, Form, OwnerActions } from "../components/form";
+import { RULES } from "../../lib/validation";
+import { errorList, type FormState } from "../form-state";
 import { PostItem, PostList } from "../components/post";
 import { Layout, PageHeader } from "../components/site";
 
@@ -11,10 +14,15 @@ type Props = {
   user: string;
   thread: ThreadRecord;
   posts: PostRecord[];
+  /** タイトル修正の 400 */
+  editTitle?: FormState;
+  /** 削除できない理由（409） */
+  deleteError?: string;
 };
 
-export function ThreadPage({ user, thread: t, posts }: Props) {
+export function ThreadPage({ user, thread: t, posts, editTitle, deleteError }: Props) {
   const hue = communityHue(t.community_id);
+  const isOwner = t.author_email === user;
   return (
     <Layout title={t.title} user={user}>
       <PageHeader
@@ -32,7 +40,36 @@ export function ThreadPage({ user, thread: t, posts }: Props) {
         }
         hue={hue}
         titleLength={[...t.title].length}
+        actions={
+          <OwnerActions
+            isOwner={isOwner}
+            editOpen={editTitle !== undefined}
+            editLabel="タイトルを編集"
+            edit={
+              <Form action={`/t/${t.id}/edit`} submitLabel="保存する" errors={errorList(editTitle)}>
+                <Field
+                  formId="edit-thread"
+                  name="title"
+                  label="タイトル"
+                  max={RULES.threadTitle.max}
+                  required
+                  value={editTitle?.values.title ?? t.title}
+                  error={editTitle?.errors.title}
+                />
+              </Form>
+            }
+            deleteAction={`/t/${t.id}/delete`}
+            deleteConfirm="このスレッドを本文ごと削除しますか？この操作は取り消せません。"
+          />
+        }
       />
+      {deleteError && (
+        <div class="page-notice">
+          <Notice tone="error" title="このスレッドは削除できません">
+            {deleteError}
+          </Notice>
+        </div>
+      )}
       <div class="page-grid" style={`--community-hue: ${hue}`}>
         <div class="col-margin">
           <MarginNote

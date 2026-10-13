@@ -58,3 +58,44 @@ export function listThreads(db: D1Database, opts: { communityId?: number; limit:
     .all<ThreadRecord>()
     .then((r) => r.results);
 }
+
+/** 本人のときだけタイトルを更新する。`last_posted_at` は変えない */
+export async function updateThreadTitle(
+  db: D1Database,
+  row: { id: number; authorEmail: string; title: string; updatedAt: string },
+): Promise<number> {
+  const r = await db
+    .prepare("UPDATE threads SET title = ?, updated_at = ? WHERE id = ? AND author_email = ?")
+    .bind(row.title, row.updatedAt, row.id, row.authorEmail)
+    .run();
+  return r.meta.changes;
+}
+
+/**
+ * 返信がなく、本人のスレッドを本文ごと削除する（ARCHITECTURE §4.4）。
+ * 本文の DELETE も「返信がない かつ 本人」を条件にし、子要素を残したまま親が消えないようにする。
+ * スレッドを削除できた行数（0 または 1）を返す。
+ */
+export async function deleteThreadWithOpening(db: D1Database, id: number, authorEmail: string): Promise<number> {
+  const [, thread] = await db.batch([
+    db
+      .prepare(
+        `DELETE FROM posts WHERE thread_id = ?1 AND is_opening = 1
+           AND NOT EXISTS (SELECT 1 FROM posts WHERE thread_id = ?1 AND is_opening = 0)
+           AND EXISTS (SELECT 1 FROM threads WHERE id = ?1 AND author_email = ?2)`,
+      )
+      .bind(id, authorEmail),
+    db
+      .prepare(
+        `DELETE FROM threads WHERE id = ?1 AND author_email = ?2
+           AND NOT EXISTS (SELECT 1 FROM posts WHERE thread_id = ?1)`,
+      )
+      .bind(id, authorEmail),
+  ]);
+  return thread!.meta.changes;
+}
+
+export async function hasReplies(db: D1Database, id: number): Promise<boolean> {
+  const r = await db.prepare("SELECT 1 AS x FROM posts WHERE thread_id = ? AND is_opening = 0 LIMIT 1").bind(id).first();
+  return r !== null;
+}

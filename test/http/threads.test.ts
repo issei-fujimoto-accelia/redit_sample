@@ -77,3 +77,60 @@ describe("スレッドページ", () => {
     expect(page.raw).toMatch(/id="post-\d+"/);
   });
 });
+
+describe("スレッドの修正", () => {
+  it("作成直後は「編集済み」が出ない。タイトル修正 → 303、新しいタイトルと「編集済み」", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    expect((await html(await as(alice).get(`/t/${tid}`))).has("編集済み")).toBe(false);
+
+    const title = unique("直したタイトル");
+    const res = await as(alice).post(`/t/${tid}/edit`, { title });
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/t/${tid}`);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has(title)).toBe(true);
+    expect(page.has("編集済み")).toBe(true);
+  });
+
+  it("タイトルを空に修正 → 400、元のタイトルは変わらない", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const title = unique("元のタイトル");
+    const tid = await createThread(as(alice), cid, { title });
+    const res = await as(alice).post(`/t/${tid}/edit`, { title: " " });
+    expect(res.status).toBe(400);
+    expect((await html(res)).has("タイトルを入力してください。")).toBe(true);
+    expect((await html(await as(alice).get(`/t/${tid}`))).has(title)).toBe(true);
+  });
+
+  it("作成者にはスレッドの修正・削除の操作が表示される", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.formActions).toContain(`/t/${tid}/edit`);
+    expect(page.formActions).toContain(`/t/${tid}/delete`);
+  });
+
+  it("存在しないスレッドの修正・削除 → 404", async () => {
+    const { as } = setup();
+    expect((await as(alice).post("/t/999999/edit", { title: "x" })).status).toBe(404);
+    expect((await as(alice).post("/t/999999/delete")).status).toBe(404);
+  });
+});
+
+describe("スレッドの削除", () => {
+  it("返信なしのスレッドを削除 → 303 /c/:community_id、/t/:id が 404、一覧から消える", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const title = unique("消すスレッド");
+    const tid = await createThread(as(alice), cid, { title });
+    const res = await as(alice).post(`/t/${tid}/delete`);
+    expect(res.status).toBe(303);
+    expect(res.headers.get("Location")).toBe(`/c/${cid}`);
+    expect((await as(alice).get(`/t/${tid}`)).status).toBe(404);
+    expect((await html(await as(alice).get(`/c/${cid}`))).has(title)).toBe(false);
+  });
+});
