@@ -69,3 +69,25 @@ export function EmptyState({ title, body, action }: EmptyStateProps) {
     </div>
   );
 }
+
+type MarginNoteProps = {
+  title: string;
+  items: { label: string; value: Child }[];
+};
+
+/** 欄外の注記（Marginalia）。デスクトップでは右の欄外、モバイルでは本文の前に置く */
+export function MarginNote({ title, items }: MarginNoteProps) {
+  return (
+    <aside class="margin-note" aria-label={title}>
+      <p class="margin-note__title">{title}</p>
+      <dl class="margin-note__list">
+        {items.map((i) => (
+          <div class="margin-note__item">
+            <dt>{i.label}</dt>
+            <dd>{i.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
+  );
+}

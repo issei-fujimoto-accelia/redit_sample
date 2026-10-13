@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 005 コミュニティの作成と一覧
@@ -36,12 +36,12 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] 名前と説明を入力して作成でき、そのコミュニティページへ移動する
-- [ ] 既存と同じ名前では作成できず、理由が表示される
-- [ ] 名前が空・51文字以上、説明が501文字以上では保存されない
-- [ ] 一覧が名前順に並ぶ
-- [ ] 存在しないコミュニティで見つからない旨が表示される
-- [ ] 共通 DoD
+- [x] 名前と説明を入力して作成でき、そのコミュニティページへ移動する
+- [x] 既存と同じ名前では作成できず、理由が表示される
+- [x] 名前が空・51文字以上、説明が501文字以上では保存されない
+- [x] 一覧が名前順に並ぶ
+- [x] 存在しないコミュニティで見つからない旨が表示される
+- [x] 共通 DoD
 
 ## Tests（S1：`test/http/communities.test.ts`）
 
@@ -51,3 +51,12 @@ status: created
 - 名前 51文字 → 400（代表ケース）
 - 同名・大小文字違い・前後空白付きの同名 → 409
 - 存在しない `/c/:id` → 404
+
+## 実装メモ
+
+- 層：`routes/communities.tsx` → `services/communities.ts` → `repositories/communities.ts`、画面は `views/pages/communities.tsx`。
+- 重複は D1 の `UNIQUE COLLATE NOCASE` 違反を捕まえて 409 にする（trim 後の値で INSERT）。
+- 400／409 は `ServiceResult` の `FormFailure`（入力値と項目ごとのエラー）で返し、元の画面を再描画する。
+- テストヘルパーに `createCommunity` / `createThread` / `reply` / `idFrom` / `unique` を追加。
+- 欄外の注記（`MarginNote`）を共通部品に追加し、コミュニティページの作成者・作成日時を置いた。
+- セルフチェック：`design/rounds/06/review.md`（合格）。
