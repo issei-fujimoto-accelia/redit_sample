@@ -2,7 +2,7 @@ import { RULES, validateField } from "../lib/validation";
 import * as communities from "../repositories/communities";
 import * as posts from "../repositories/posts";
 import * as repo from "../repositories/threads";
-import { notFound, type ServiceResult } from "./result";
+import { forbidden, notFound, type ServiceResult } from "./result";
 
 export type ThreadForm = { title?: unknown; body?: unknown };
 
@@ -57,4 +57,39 @@ export type ThreadPage = { threads: repo.ThreadRecord[]; page: number; hasNext: 
 export async function listThreads(db: D1Database, page: number, communityId?: number): Promise<ThreadPage> {
   const rows = await repo.listThreads(db, { communityId, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
   return { threads: rows.slice(0, PER_PAGE), page, hasNext: rows.length > PER_PAGE };
+}
+
+export const HAS_REPLIES = "返信が残っているスレッドは削除できません。返信がすべて削除されると、本文ごと削除できます。";
+
+export async function updateThreadTitle(
+  db: D1Database,
+  user: string,
+  now: Date,
+  id: number,
+  form: { title?: unknown },
+): Promise<ServiceResult<number>> {
+  const current = await getThread(db, id);
+  if (current.author_email !== user) throw forbidden();
+  const title = validateField(form.title, RULES.threadTitle);
+  if (!title.ok) return { ok: false, status: 400, values: { title: String(form.title ?? "") }, errors: { title: title.error } };
+  const changes = await repo.updateThreadTitle(db, { id, authorEmail: user, title: title.value, updatedAt: now.toISOString() });
+  if (changes === 0) await explainZero(db, id, user);
+  return { ok: true, value: id };
+}
+
+/** 削除に成功したら所属コミュニティの ID を返す */
+export async function deleteThread(db: D1Database, user: string, id: number): Promise<ServiceResult<number>> {
+  const current = await getThread(db, id);
+  if (current.author_email !== user) throw forbidden();
+  const changes = await repo.deleteThreadWithOpening(db, id, user);
+  if (changes === 1) return { ok: true, value: current.community_id };
+  await explainZero(db, id, user);
+  return { ok: false, status: 409, values: {}, errors: { delete: HAS_REPLIES } };
+}
+
+/** 条件付きの UPDATE / DELETE が0行だった原因を判別する。子要素ありの場合は戻る */
+async function explainZero(db: D1Database, id: number, user: string) {
+  const t = await repo.findThread(db, id);
+  if (!t) throw notFound();
+  if (t.author_email !== user) throw forbidden();
 }

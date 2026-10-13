@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createCommunity, html, setup, tokenFor, unique } from "../helpers";
+import { createCommunity, createThread, html, setup, tokenFor, unique } from "../helpers";
 
 describe("Origin 検証（CSRF）", () => {
   const post = async (origin?: string, path = "/no-such-path") => {
@@ -54,5 +54,31 @@ describe("他人のコミュニティ", () => {
     const id = await createCommunity(as(alice));
     expect((await as(bob).post(`/c/${id}/delete`)).status).toBe(403);
     expect((await as(alice).get(`/c/${id}`)).status).toBe(200);
+  });
+});
+
+describe("他人のスレッド", () => {
+  const alice = "alice@example.com";
+  const bob = "bob@example.com";
+
+  it("他人にはスレッドの修正・削除の操作が表示されない", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const page = await html(await as(bob).get(`/t/${tid}`));
+    expect(page.formActions).not.toContain(`/t/${tid}/edit`);
+    expect(page.formActions).not.toContain(`/t/${tid}/delete`);
+  });
+
+  it("他人のスレッドの修正・削除 POST → 403、内容が変わらない", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const title = unique("alice のスレッド");
+    const tid = await createThread(as(alice), cid, { title });
+    expect((await as(bob).post(`/t/${tid}/edit`, { title: "乗っ取り" })).status).toBe(403);
+    expect((await as(bob).post(`/t/${tid}/delete`)).status).toBe(403);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has(title)).toBe(true);
+    expect(page.has("編集済み")).toBe(false);
   });
 });

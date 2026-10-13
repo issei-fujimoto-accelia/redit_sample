@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createCommunity, html, idFrom, setup, unique } from "../helpers";
+import { createCommunity, createThread, html, idFrom, setup, unique } from "../helpers";
 
 const alice = "alice@example.com";
 
@@ -182,5 +182,27 @@ describe("コミュニティの削除", () => {
   it("存在しないコミュニティの削除 → 404", async () => {
     const { as } = setup();
     expect((await as(alice).post("/c/999999/delete")).status).toBe(404);
+  });
+});
+
+describe("コミュニティの削除（スレッドあり）", () => {
+  it("スレッドがあるコミュニティの削除 → 409、理由の表示、コミュニティとスレッドが残る", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const title = unique("残るスレッド");
+    const tid = await createThread(as(alice), cid, { title });
+    const res = await as(alice).post(`/c/${cid}/delete`);
+    expect(res.status).toBe(409);
+    expect((await html(res)).has("スレッドが残っているコミュニティは削除できません。")).toBe(true);
+    expect((await html(await as(alice).get(`/c/${cid}`))).has(title)).toBe(true);
+    expect((await as(alice).get(`/t/${tid}`)).status).toBe(200);
+  });
+
+  it("スレッドを削除した後は、コミュニティを削除できる", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    await as(alice).post(`/t/${tid}/delete`);
+    expect((await as(alice).post(`/c/${cid}/delete`)).status).toBe(303);
   });
 });

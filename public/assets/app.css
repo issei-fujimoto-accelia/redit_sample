@@ -732,6 +732,7 @@
 
   .page-notice { margin-block: calc(var(--space-6) * -0.5) var(--space-6); }
   .page-header__actions { margin-block-start: var(--space-5); }
+  .page-header__actions > .owner-actions { flex: 1 1 100%; }
 
   /* ---------- MarginNote ---------- */
   .margin-note {
