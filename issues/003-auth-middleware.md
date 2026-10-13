@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 003 認証ミドルウェアとテストヘルパー
@@ -36,9 +36,9 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] 有効な JWT のリクエストだけが通り、それ以外は 403
-- [ ] `AUTH_MODE` 未設定・その他の値では JWT 必須
-- [ ] 共通 DoD
+- [x] 有効な JWT のリクエストだけが通り、それ以外は 403
+- [x] `AUTH_MODE` 未設定・その他の値では JWT 必須
+- [x] 共通 DoD
 
 ## Tests（S1：`test/http/auth.test.ts`）
 
@@ -50,3 +50,10 @@ status: created
 - 期限切れ → 403
 - 対象外ドメインのメール → 403
 - `AUTH_MODE=dev` のとき JWT なしで `DEV_USER_EMAIL` として扱われる
+
+## 実装メモ
+
+- 失敗ケースとして、形式不正の JWT、`email` クレームなし、サブドメインを装ったメール、Access の環境変数未設定、`AUTH_MODE=dev` で `DEV_USER_EMAIL` 未設定も 403 で検証した。
+- メールアドレスは小文字に正規化して `c.var.user` に設定する（作成者判定の表記揺れを防ぐ）。
+- `exp` の判定には注入した時計（`currentDate: deps.now()`）を使う。
+- テストヘルパーは `test/helpers/index.ts`（`setup()` が時計・ローカル JWKS を注入したアプリと `as(email)` を返す）。
