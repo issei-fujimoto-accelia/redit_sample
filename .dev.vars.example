@@ -1,0 +1,3 @@
+# ローカル開発用。.dev.vars にコピーして使う（.dev.vars は Git 管理外）
+AUTH_MODE=dev
+DEV_USER_EMAIL=alice@example.com
