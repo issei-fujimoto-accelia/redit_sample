@@ -13,6 +13,10 @@ export const SCHEMES = ["light", "dark"];
 
 /** 対象ページ。各 Issue で画面を追加したらここに足す */
 export const PAGES = [
+  { name: "communities", path: "/c" },
+  { name: "community", path: "/c/1" },
+  { name: "community-empty", path: "/c/3" },
+  { name: "community-long", path: "/c/6" },
   { name: "styleguide", path: "/_styleguide" },
   { name: "error-403", path: "/_styleguide/error/403" },
   { name: "error-404", path: "/_styleguide/error/404" },

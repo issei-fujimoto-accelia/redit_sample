@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { auth } from "./middleware/auth";
 import { notFound, onError } from "./middleware/error";
 import { origin } from "./middleware/origin";
+import { communityRoutes } from "./routes/communities";
 import { devRoutes } from "./routes/dev";
 import type { AppDeps, AppEnv } from "./types";
 import { Layout, PageHeader } from "./views/components/site";
@@ -24,6 +25,7 @@ export function createApp(deps: AppDeps) {
     ),
   );
 
+  app.route("/c", communityRoutes(deps));
   app.route("/_styleguide", devRoutes);
 
   return app;

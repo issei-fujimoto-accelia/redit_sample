@@ -115,3 +115,35 @@ export async function html(res: Response) {
     has: (s: string) => text.includes(s),
   };
 }
+
+type Client = ReturnType<ReturnType<typeof setup>["as"]>;
+
+/** `Location` の末尾の ID（`/c/12`、`/t/3#post-9` など）を取り出す */
+export function idFrom(res: Response, kind: "c" | "t" | "post"): number {
+  const loc = res.headers.get("Location") ?? "";
+  const m = kind === "post" ? loc.match(/#post-(\d+)$/) : loc.match(new RegExp(`^/${kind}/(\\d+)`));
+  if (!m) throw new Error(`unexpected Location: ${res.status} ${loc}`);
+  return Number(m[1]);
+}
+
+let seq = 0;
+/** テストごとに一意な名前を作る（同じファイル内で DB を共有するため） */
+export const unique = (prefix = "名前") => `${prefix}-${++seq}-${Math.random().toString(36).slice(2, 7)}`;
+
+export async function createCommunity(client: Client, form: { name?: string; description?: string } = {}) {
+  const res = await client.post("/c", { name: form.name ?? unique("コミュニティ"), description: form.description ?? "" });
+  return idFrom(res, "c");
+}
+
+export async function createThread(client: Client, communityId: number, form: { title?: string; body?: string } = {}) {
+  const res = await client.post(`/c/${communityId}/threads`, {
+    title: form.title ?? unique("スレッド"),
+    body: form.body ?? "本文です。",
+  });
+  return idFrom(res, "t");
+}
+
+export async function reply(client: Client, threadId: number, body = "返信です。") {
+  const res = await client.post(`/t/${threadId}/posts`, { body });
+  return idFrom(res, "post");
+}
