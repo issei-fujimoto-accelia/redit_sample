@@ -41,3 +41,20 @@ export async function insertThreadWithOpening(
   ]);
   return thread!.results[0]!.id;
 }
+
+/**
+ * スレッド一覧（最終投稿日時の新しい順、同時刻は id の大きい順）。
+ * 次のページの有無を判定するため、limit + 1 件まで読む。
+ */
+export function listThreads(db: D1Database, opts: { communityId?: number; limit: number; offset: number }) {
+  const where = opts.communityId === undefined ? "" : "WHERE t.community_id = ?";
+  const binds = opts.communityId === undefined ? [] : [opts.communityId];
+  return db
+    .prepare(
+      `SELECT ${COLUMNS} FROM threads t JOIN communities c ON c.id = t.community_id ${where}
+       ORDER BY t.last_posted_at DESC, t.id DESC LIMIT ? OFFSET ?`,
+    )
+    .bind(...binds, opts.limit + 1, opts.offset)
+    .all<ThreadRecord>()
+    .then((r) => r.results);
+}

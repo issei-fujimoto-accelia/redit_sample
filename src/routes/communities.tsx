@@ -22,9 +22,16 @@ export function communityRoutes(deps: AppDeps) {
     return render(c, <CommunityListPage user={c.var.user} communities={communities} create={result} />, result.status);
   });
 
+  /** コミュニティページの描画に必要なデータ（再描画でも使う） */
+  const load = async (db: D1Database, id: number, page = 1) => {
+    const community = await svc.getCommunity(db, id);
+    const list = await threads.listThreads(db, page, id);
+    return { community, list };
+  };
+
   r.get("/:id", async (c) => {
-    const community = await svc.getCommunity(c.env.DB, parseId(c.req.param("id")));
-    return render(c, <CommunityPage user={c.var.user} community={community} />);
+    const data = await load(c.env.DB, parseId(c.req.param("id")), threads.parsePage(c.req.query("page")));
+    return render(c, <CommunityPage user={c.var.user} {...data} />);
   });
 
   r.post("/:id/edit", async (c) => {
@@ -32,18 +39,16 @@ export function communityRoutes(deps: AppDeps) {
     const form = await c.req.parseBody();
     const result = await svc.updateCommunity(c.env.DB, c.var.user, deps.now(), id, form);
     if (result.ok) return c.redirect(`/c/${id}`, 303);
-    const community = await svc.getCommunity(c.env.DB, id);
-    return render(c, <CommunityPage user={c.var.user} community={community} edit={result} />, result.status);
+    return render(c, <CommunityPage user={c.var.user} {...await load(c.env.DB, id)} edit={result} />, result.status);
   });
 
   r.post("/:id/delete", async (c) => {
     const id = parseId(c.req.param("id"));
     const result = await svc.deleteCommunity(c.env.DB, c.var.user, id);
     if (result.ok) return c.redirect("/c", 303);
-    const community = await svc.getCommunity(c.env.DB, id);
     return render(
       c,
-      <CommunityPage user={c.var.user} community={community} deleteError={result.errors.delete} />,
+      <CommunityPage user={c.var.user} {...await load(c.env.DB, id)} deleteError={result.errors.delete} />,
       result.status,
     );
   });
@@ -53,8 +58,7 @@ export function communityRoutes(deps: AppDeps) {
     const form = await c.req.parseBody();
     const result = await threads.createThread(c.env.DB, c.var.user, deps.now(), id, form);
     if (result.ok) return c.redirect(`/t/${result.value}`, 303);
-    const community = await svc.getCommunity(c.env.DB, id);
-    return render(c, <CommunityPage user={c.var.user} community={community} newThread={result} />, result.status);
+    return render(c, <CommunityPage user={c.var.user} {...await load(c.env.DB, id)} newThread={result} />, result.status);
   });
 
   return r;

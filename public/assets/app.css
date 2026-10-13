@@ -524,7 +524,7 @@
   .thread-item__meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); font-size: var(--step--1); color: var(--color-ink-2); }
   .thread-item__no { font-family: var(--font-latin); font-variation-settings: "opsz" 12; font-variant-numeric: tabular-nums; }
   .thread-item__no::before { content: counter(thread, decimal-leading-zero); }
-  .thread-item__title { grid-area: title; font-size: var(--step-2); line-height: 1.45; font-weight: 700; }
+  .thread-item__title { grid-area: title; font-size: var(--step-2); line-height: 1.45; font-weight: 700; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
   .thread-item__link { color: var(--color-ink); text-decoration: none; background-image: linear-gradient(currentColor, currentColor); background-size: 0 1px; background-repeat: no-repeat; background-position: 0 92%; transition: background-size var(--duration-3) var(--ease-out), color var(--duration-1) var(--ease-out); }
   .thread-item__link::after { content: ""; position: absolute; inset: 0; z-index: 0; }
   .thread-item__link:hover, .is-hover .thread-item__link { color: var(--color-ink); background-size: 100% 1px; }
