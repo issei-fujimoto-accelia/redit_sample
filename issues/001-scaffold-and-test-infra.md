@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 001 プロジェクト雛形とテスト基盤
@@ -40,13 +40,20 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] `npm test` が成功する
-- [ ] `npm run test:coverage` が Istanbul でレポートを出力する
-- [ ] `npm run typecheck` がエラーなし
-- [ ] `npm run db:migrate:local` → `npm run dev` でローカル起動できる
-- [ ] 外部キー制約の確認結果が記録されている（PR 説明または ARCHITECTURE への追記）
-- [ ] `CLAUDE.md` にコマンドが記載されている
+- [x] `npm test` が成功する
+- [x] `npm run test:coverage` が Istanbul でレポートを出力する
+- [x] `npm run typecheck` がエラーなし
+- [x] `npm run db:migrate:local` → `npm run dev` でローカル起動できる
+- [x] 外部キー制約の確認結果が記録されている（PR 説明または ARCHITECTURE への追記）
+- [x] `CLAUDE.md` にコマンドが記載されている
 
 ## Tests
 
 - S1（tracer）：`createApp` で生成したアプリに `GET /` を送ると 200 で、ホームとコミュニティ一覧へのリンクを含む HTML が返る（003 で `as(email)` 経由に置き換える）
+
+## 実装メモ
+
+- バージョン：`@cloudflare/vitest-plugin` 1.4.1（peer：`vitest ^4.1.0 || ^5.0.0`）、Vitest 5.0.4、wrangler 4.150.0。
+- Vitest 5 の `fsModuleCache`（既定で有効）が作るキャッシュファイルを Workers ランタイムから読めずに失敗するため、`vitest.config.ts` で `fsModuleCache: false` にした。
+- 外部キー：ローカル D1 で `PRAGMA foreign_keys` = 1、存在しない親を参照する INSERT が失敗することを確認（ARCHITECTURE §4.1 に追記）。
+- `wrangler.jsonc` の `database_id` は仮の値。015 で本番 D1 の ID に置き換える。
