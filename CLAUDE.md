@@ -14,3 +14,7 @@
 | `npm run db:migrate:local` | ローカル D1 にマイグレーションを適用 |
 | `npm run db:migrate:remote` | 本番 D1 にマイグレーションを適用 |
 | `npm run deploy` | 本番デプロイ（`wrangler deploy`） |
+| `npm run design:seed` | 画面確認用のデータを投入（`AUTH_MODE=dev` で起動したサーバーに対して） |
+| `npm run design:capture` | スクリーンショットを `design/rounds/NN/` に保存（Playwright。初回は `npx playwright install chromium`） |
+| `npm run design:audit` | axe によるアクセシビリティチェック |
+| `npm run design:budget` | CSS・フォントの容量予算の確認 |
