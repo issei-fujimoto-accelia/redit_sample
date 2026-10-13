@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: done
 ---
 
 # 004 共通ミドルウェア・レイアウト・エラーページ
@@ -34,11 +34,17 @@ CSRF 対策・例外処理・共通レイアウトは全画面で使う土台に
 
 ## Acceptance criteria
 
-- [ ] 他オリジンからの POST が 403
-- [ ] 未定義パスで見つからない旨のページが 404 で表示される
-- [ ] 共通 DoD
+- [x] 他オリジンからの POST が 403
+- [x] 未定義パスで見つからない旨のページが 404 で表示される
+- [x] 共通 DoD
 
 ## Tests（S1）
 
 - `security.test.ts`：`Origin` が自ホストでない POST → 403。`Origin` なしの POST → 403
 - `errors.test.ts`：未定義のパス → 404 と見つからない旨の表示
+
+## 実装メモ
+
+- Origin 検証は Hono の `csrf` ではなく自前の `origin()` ミドルウェアにした。`csrf` はフォーム系の Content-Type だけを検査し、`Sec-Fetch-Site: same-origin` でも通すため、「更新系はすべて Origin が自ホストと一致すること」を必須にする方が意図（ARCHITECTURE §7.4）に沿う。
+- D1 の上限超過は `D1_ERROR` かつ limit/exceeded を含むエラーメッセージで判定して 503、それ以外の例外は 500。
+- `render()` で `<!DOCTYPE html>` を付けて返す。

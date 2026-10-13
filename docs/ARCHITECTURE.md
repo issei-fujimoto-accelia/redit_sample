@@ -244,7 +244,7 @@ POST /t/:id/posts ─▶ auth ─▶ origin ─▶ routes/thread
 | 脅威 | 対策 |
 |---|---|
 | XSS | JSX の自動エスケープに任せる。生 HTML の挿入（`dangerouslySetInnerHTML` 等）は使わない。改行は CSS（`white-space: pre-wrap`）で表示する |
-| CSRF | POST で `Origin` ヘッダーが自ホストと一致することを検証する（Hono の `csrf` ミドルウェア）。Access の Cookie も補助的な防御になる |
+| CSRF | 更新系（GET/HEAD/OPTIONS 以外）のリクエストで、`Origin` ヘッダーが自ホストと一致することを必須とする（自前の `origin` ミドルウェア。Hono の `csrf` はフォーム系 Content-Type のみを検査するため使わない：Issue 004）。Access の Cookie も補助的な防御になる |
 | 他人のリソースの操作 | サービス層で本人確認し、UPDATE / DELETE 文にも `author_email = ?` を含める |
 | SQL インジェクション | D1 のプリペアドステートメント（`bind`）のみを使う |
 
