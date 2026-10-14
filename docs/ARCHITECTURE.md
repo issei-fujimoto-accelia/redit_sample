@@ -264,13 +264,14 @@ POST /t/:id/posts ─▶ auth ─▶ origin ─▶ routes/thread
 | 項目 | 内容 |
 |---|---|
 | デプロイ先 | `<アプリ名>.i-fujimoto.workers.dev`（Workers Free） |
-| 設定ファイル | `wrangler.jsonc`（D1 binding `DB`、`assets.directory: "./public"`、`workers_dev: true`、`preview_urls: false`） |
+| 設定ファイル | `wrangler.jsonc`（D1 binding `DB`、`assets.directory: "./public"`、`workers_dev: true`、`preview_urls: false`、`vars` に本番の Access 設定） |
+| 手順書 | `docs/DEPLOY.md` |
 | 環境変数 | `TEAM_DOMAIN`、`POLICY_AUD`、`ALLOWED_EMAIL_DOMAIN`（本番）／`AUTH_MODE`、`DEV_USER_EMAIL`（ローカルのみ、`.dev.vars`） |
 | デプロイ | `wrangler d1 migrations apply <DB> --remote` → `wrangler deploy`（手動） |
 | ローカル実行 | `wrangler d1 migrations apply <DB> --local` → `wrangler dev` |
 | CI/CD | 設けない |
 
-### 9.1 フリープランの上限（2026-10-13 時点の公式ドキュメント）
+### 9.1 フリープランの上限（2026-10-13 時点の公式ドキュメント。2026-10-14 に再確認し変更なし）
 
 | 対象 | 上限 | 本アプリでの見込み |
 |---|---|---|
