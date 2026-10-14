@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-14
-status: created
+status: done
 ---
 
 # 018 ［ドキュメント］スレッド作成ページとヘッダーの「投稿する」ボタン
@@ -55,11 +55,28 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] 作成ページ・送信先・初期値・エラー時の挙動が文書で一意に決まっている
-- [ ] `POST /c/:id/threads` の扱い（廃止／存続）が決まり、既存テストへの影響が 019 に書かれている
-- [ ] ヘッダーの投稿ボタンの見た目と配置（デスクトップ・モバイル）が UI_GUIDELINES に書かれている
-- [ ] 各文書が互いに矛盾しない
+- [x] 作成ページ・送信先・初期値・エラー時の挙動が文書で一意に決まっている
+- [x] `POST /c/:id/threads` の扱い（廃止／存続）が決まり、既存テストへの影響が 019 に書かれている
+- [x] ヘッダーの投稿ボタンの見た目と配置（デスクトップ・モバイル）が UI_GUIDELINES に書かれている
+- [x] 各文書が互いに矛盾しない
 
 ## Tests
 
 - ドキュメントのみのため自動テストなし。019 の Tests 欄を本 Issue の決定に合わせて見直す
+
+## 決定事項（ユーザー確認済み）
+
+- 送信先は `POST /t` に一本化し、`POST /c/:id/threads` は廃止する。作成ページは `GET /t/new?c=:id`。
+- モバイルではヘッダーの投稿ボタンを＋アイコンのみ（`aria-label="投稿する"`、44px）にする。
+- 初期値が付くのはコミュニティページとスレッドページ（所属コミュニティ）。`?c=` の不正値は未選択として扱う。
+- `spec/CONCEPT.md` §7 も更新する（016 と同じ指示）。
+
+## 更新した文書
+
+- `spec/CONCEPT.md` §7、`docs/REQUIREMENTS.md` §5.1・§5.2・§6.2・FR-T-5・§10、`docs/ARCHITECTURE.md` §5、`docs/UI_GUIDELINES.md` §4.1・§4.2・§5、`docs/TEST_STRATEGY.md` §5、`docs/IMPLEMENTATION_PLAN.md`（W17）
+
+## 019 への影響
+
+- テストヘルパー `createThread` を `POST /t`（`community_id` 付き）に変更する。既存の一覧・削除・セキュリティのテストはこのヘルパー経由のため、テスト本体の変更は最小限で済む。
+- `threads.test.ts` の作成・400・404 のテスト（`/c/:id/threads` を直接叩くもの）は `POST /t` に移す。「存在しないコミュニティへの作成」は 404 から 400 に変わる。
+- `scripts/design/seed.mjs` の送信先を変更する。

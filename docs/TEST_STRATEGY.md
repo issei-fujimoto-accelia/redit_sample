@@ -117,7 +117,9 @@ ARCHITECTURE で特定した、壊れると要件違反に直結する箇所。�
 | 名前順の一覧 | S1 `communities` |
 | スレッドの有無による削除可否と遷移 | S1 `communities` |
 | **スレッド** | |
+| ヘッダーの投稿ボタンから作成画面へ、初期値のコミュニティ | S1 `threads` |
 | 作成と遷移、本文が先頭 | S1 `threads` |
+| 投稿先が未選択・存在しない場合は保存しない | S1 `threads` |
 | タイトル・本文の入力制約 | S2 `validation`、S1 `threads`（代表ケース） |
 | ホームは横断、コミュニティページは該当のみ | S1 `listing-home`、`listing-community` |
 | 最終投稿日時の順。返信で先頭へ | S1 `listing-home` |
