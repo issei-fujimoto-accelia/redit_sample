@@ -58,8 +58,3 @@ export async function deleteCommunity(db: D1Database, id: number, authorEmail: s
     .run();
   return r.meta.changes;
 }
-
-export async function hasThreads(db: D1Database, id: number): Promise<boolean> {
-  const r = await db.prepare("SELECT 1 AS x FROM threads WHERE community_id = ? LIMIT 1").bind(id).first();
-  return r !== null;
-}

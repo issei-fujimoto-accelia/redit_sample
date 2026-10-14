@@ -33,6 +33,10 @@ describe("ホームの横断スレッド一覧", () => {
     expect(page.raw.lastIndexOf(`href="/c/${c2}"`, i2)).toBeGreaterThan(-1);
     expect(page.raw.slice(page.raw.lastIndexOf(`href="/c/${c2}"`, i2), i2)).toContain(n2);
     expect(page.raw.slice(page.raw.lastIndexOf(`href="/c/${c1}"`, i1), i1)).toContain(n1);
+    // 作成者・投稿数・最終投稿日時（JST）も各行に出る
+    expect(page.has("bob")).toBe(true);
+    expect(page.text).toMatch(/1 件の投稿/);
+    expect(page.has("2030-01-01 09:01")).toBe(true);
   });
 
   it("新しい順に並び、最も古いスレッドに返信すると先頭へ。その返信を削除すると元の順に戻る", async () => {

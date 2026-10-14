@@ -44,10 +44,14 @@ export function CommunityListPage({ user, communities, create }: ListProps) {
       <PageHeader
         eyebrow={
           <>
-            <span class="num latin">{communities.length}</span> のコミュニティ
+            <span class="num latin">{communities.length}</span> つのコミュニティ
           </>
         }
-        title="コミュニティ"
+        title={
+          <>
+            コミュニティ <span class="latin">Communities</span>
+          </>
+        }
         description="テーマごとの議論の場。気になる場所を開いて、スレッドを読んだり立てたりできます。"
       />
       <div class="page-grid">

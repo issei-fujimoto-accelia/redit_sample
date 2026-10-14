@@ -165,3 +165,15 @@ describe("返信の削除", () => {
     expect((await html(await as(alice).get(`/t/${tid}`))).has("消せない本文")).toBe(true);
   });
 });
+
+describe("日時の表示", () => {
+  it("UTC 15:00 に作成した投稿が JST 翌日 00:00 で表示され、datetime 属性は UTC", async () => {
+    const clock = createClock("2026-08-31T15:00:00.000Z");
+    const { as } = setup({ clock });
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    expect(page.has("2026-09-01 00:00")).toBe(true);
+    expect(page.raw).toContain('datetime="2026-08-31T15:00:00.000Z"');
+  });
+});

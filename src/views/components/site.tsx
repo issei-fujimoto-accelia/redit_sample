@@ -3,7 +3,8 @@ import { displayName } from "../../lib/display-name";
 
 export const APP_NAME = "Marginalia";
 
-export type Nav = "home" | "communities" | undefined;
+/** 現在地。`in-communities` はコミュニティ配下（スレッドページなど）で、上位の現在地として示す */
+export type Nav = "home" | "communities" | "in-communities" | undefined;
 
 /** CSS・フォントのキャッシュ更新用。アセットを変更したら上げる */
 export const ASSET_VERSION = "1";
@@ -71,7 +72,11 @@ export function SiteHeader({ user, current }: { user?: string; current?: Nav }) 
               </a>
             </li>
             <li>
-              <a class="site-nav__link" href="/c" aria-current={current === "communities" ? "page" : undefined}>
+              <a
+                class="site-nav__link"
+                href="/c"
+                aria-current={current === "communities" ? "page" : current === "in-communities" ? "true" : undefined}
+              >
                 コミュニティ
               </a>
             </li>

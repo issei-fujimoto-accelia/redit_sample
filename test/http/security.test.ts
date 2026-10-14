@@ -102,3 +102,28 @@ describe("他人の投稿", () => {
     expect(after.has("編集済み")).toBe(false);
   });
 });
+
+describe("XSS（プレーンテキストの表示）", () => {
+  const alice = "alice@example.com";
+  const evil = "<script>alert(1)</script>";
+
+  it("<script> を含むコミュニティ名・説明・タイトル・本文が、エスケープされた文字列として表示される", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice), { name: `${evil}${unique("")}`, description: `説明${evil}` });
+    const tid = await createThread(as(alice), cid, { title: `題${evil}`, body: `本文${evil}\n<b>太字</b>` });
+    for (const path of ["/", "/c", `/c/${cid}`, `/t/${tid}`]) {
+      const page = await html(await as(alice).get(path));
+      expect(page.raw).not.toContain(evil);
+      expect(page.raw).not.toContain("<b>太字</b>");
+      expect(page.has("<script>alert(1)</script>")).toBe(true);
+    }
+    expect((await html(await as(alice).get(`/t/${tid}`))).raw).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+  });
+
+  it("本文の改行がそのまま保持される", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid, { body: "1行目\n\n3行目" });
+    expect((await html(await as(alice).get(`/t/${tid}`))).raw).toContain("1行目\n\n3行目");
+  });
+});

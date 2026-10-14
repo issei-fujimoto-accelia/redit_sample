@@ -24,6 +24,7 @@ export const COMMUNITIES = [
     name: "五十字のコミュニティ名を確認するための長い名前の例です。表示が崩れないかを見ます。あいうえおかきく",
     description: "説明が長い場合の表示。".repeat(40),
   },
+  { name: "まだ静かなコミュニティ", description: "スレッドが0件の状態を確認する。" },
 ];
 
 const ids = {};
