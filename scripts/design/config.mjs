@@ -16,6 +16,7 @@ export const PAGES = [
   { name: "home", path: "/" },
   { name: "home-page2", path: "/?page=2" },
   { name: "communities", path: "/c" },
+  { name: "community-new", path: "/c/new" },
   { name: "community", path: "/c/1" },
   { name: "community-empty", path: "/c/7" },
   { name: "community-paged", path: "/c/3?page=2" },

@@ -3,7 +3,7 @@ import * as svc from "../services/communities";
 import * as threads from "../services/threads";
 import { parseId } from "../services/result";
 import type { AppDeps, AppEnv } from "../types";
-import { CommunityListPage, CommunityPage } from "../views/pages/communities";
+import { CommunityListPage, CommunityNewPage, CommunityPage } from "../views/pages/communities";
 import { render } from "../views/render";
 
 export function communityRoutes(deps: AppDeps) {
@@ -14,12 +14,14 @@ export function communityRoutes(deps: AppDeps) {
     return render(c, <CommunityListPage user={c.var.user} communities={communities} />);
   });
 
+  // `/:id` より先に定義する（ARCHITECTURE §5）
+  r.get("/new", (c) => render(c, <CommunityNewPage user={c.var.user} />));
+
   r.post("/", async (c) => {
     const form = await c.req.parseBody();
     const result = await svc.createCommunity(c.env.DB, c.var.user, deps.now(), form);
     if (result.ok) return c.redirect(`/c/${result.value}`, 303);
-    const communities = await svc.listCommunities(c.env.DB);
-    return render(c, <CommunityListPage user={c.var.user} communities={communities} create={result} />, result.status);
+    return render(c, <CommunityNewPage user={c.var.user} create={result} />, result.status);
   });
 
   /** コミュニティページの描画に必要なデータ（再描画でも使う） */
