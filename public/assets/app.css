@@ -334,6 +334,8 @@
   .site-nav__link:hover::after { transform: scaleX(1); }
   .site-nav__link[aria-current="page"] { color: var(--color-ink); }
   .site-nav__link[aria-current="page"]::after { transform: scaleX(1); background: var(--color-accent); }
+  .site-nav__link[aria-current="true"] { color: var(--color-ink); }
+  .site-nav__link[aria-current="true"]::after { transform: scaleX(1); block-size: 1px; background: var(--color-ink-2); }
 
   .site-user {
     display: inline-flex;
@@ -355,7 +357,8 @@
     color: var(--color-ink-2);
   }
   .site-footer__inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) var(--space-5); }
-  .site-footer__mark { font-family: var(--font-latin); font-variation-settings: "opsz" 24; letter-spacing: -0.01em; }
+  .site-footer__mark { display: inline-flex; align-items: center; gap: 0.4em; font-family: var(--font-latin); font-variation-settings: "opsz" 24; letter-spacing: -0.01em; }
+  .site-footer__mark::before { content: ""; inline-size: 2px; block-size: 1em; background: var(--color-accent); }
 
   /* ---------- PageHeader ---------- */
   .page-header {
@@ -610,7 +613,8 @@
   .owner-actions__delete { display: contents; }
   .disclosure { inline-size: 100%; }
   .owner-actions .disclosure { inline-size: auto; }
-  .owner-actions .disclosure[open] { flex: 1 1 20rem; max-inline-size: var(--column); }
+  .owner-actions .disclosure[open] { flex: 1 1 20rem; max-inline-size: calc(var(--column) + var(--space-3)); }
+  .owner-actions .disclosure__panel { margin-inline-start: var(--space-3); }
   .disclosure > summary {
     display: inline-flex;
     align-items: center;
@@ -720,19 +724,20 @@
   .post__body { max-inline-size: var(--measure); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.85; }
   .post--opening .post__body { font-size: var(--step-1); line-height: 1.8; }
   .post--opening .post__no { color: var(--color-accent); }
-  /* 投稿ごとの操作は控えめな文字のボタンにし、本文の読みを妨げない */
-  .post .owner-actions { gap: 0 var(--space-1); margin-inline-start: calc(var(--space-3) * -1); }
-  .post .owner-actions .button {
+  /* 本人の操作は全画面で控えめな文字のボタンにそろえ、読みを妨げない（押せる範囲は 44px） */
+  .owner-actions { gap: 0 var(--space-1); margin-inline-start: calc(var(--space-3) * -1); }
+  .owner-actions .button {
+    min-block-size: var(--hit);
     border-color: transparent;
     background: transparent;
     color: var(--color-ink-2);
     font-weight: 600;
     padding-inline: var(--space-3);
   }
-  .post .owner-actions .button:hover { color: var(--color-ink); border-color: var(--color-line); background: transparent; }
-  .post .owner-actions .button--danger { color: var(--color-danger); }
-  .post .owner-actions .button--danger:hover { color: var(--color-paper); background: var(--color-danger); border-color: var(--color-danger); }
-  .post .owner-actions .disclosure[open] > summary { color: var(--color-ink); }
+  .owner-actions .button:hover { color: var(--color-ink); border-color: var(--color-line); background: transparent; }
+  .owner-actions .button--danger { color: var(--color-danger); }
+  .owner-actions .button--danger:hover { color: var(--color-paper); background: var(--color-danger); border-color: var(--color-danger); }
+  .owner-actions .disclosure[open] > summary { color: var(--color-ink); }
   .post:target, .post.is-target { animation: post-target 2.4s var(--ease-out); }
   @keyframes post-target {
     from { background: color-mix(in oklch, var(--color-accent) 16%, transparent); }
@@ -748,12 +753,23 @@
   .page-header__actions > .owner-actions { flex: 1 1 100%; }
 
   /* ---------- MarginNote ---------- */
-  .margin-note {
-    padding-block-start: var(--space-3);
-    border-block-start: 3px solid oklch(var(--community-mark-l) var(--community-mark-c) var(--community-hue));
-    font-size: var(--step--1);
+  .margin-note { font-size: var(--step--1); }
+  .margin-note__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block-end: var(--space-2);
+    margin-block-end: var(--space-4);
+    border-block-end: var(--line-width) solid var(--color-line-strong);
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
-  .margin-note__title { font-weight: 700; letter-spacing: 0.08em; margin-block-end: var(--space-3); }
+  .margin-note__title::before {
+    content: "";
+    inline-size: 0.55em;
+    block-size: 0.55em;
+    background: oklch(var(--community-mark-l) var(--community-mark-c) var(--community-hue));
+  }
   .margin-note__list { display: grid; gap: var(--space-3); }
   .margin-note__item { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); gap: var(--space-3); padding-block-end: var(--space-3); border-block-end: var(--line-width) solid var(--color-line); }
   .margin-note__item dt { color: var(--color-ink-2); }
@@ -764,7 +780,7 @@
     .page-grid > .col-margin { grid-row: 1 / span 3; position: sticky; inset-block-start: var(--space-5); align-self: start; }
   }
 
-  .margin-note--plain { border-block-start-color: var(--color-ink); }
+  .margin-note--plain .margin-note__title::before { background: var(--color-accent); }
   /* ホームの先頭の行は見出しとして一段大きく組む（紙面のトップ記事） */
   .home-threads .thread-list--first > .thread-item:first-child .thread-item__title { font-size: var(--step-3); line-height: 1.35; }
   .community-index { display: grid; gap: var(--space-2); padding: 0; list-style: none; }

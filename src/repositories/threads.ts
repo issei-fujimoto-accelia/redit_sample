@@ -94,8 +94,3 @@ export async function deleteThreadWithOpening(db: D1Database, id: number, author
   ]);
   return thread!.meta.changes;
 }
-
-export async function hasReplies(db: D1Database, id: number): Promise<boolean> {
-  const r = await db.prepare("SELECT 1 AS x FROM posts WHERE thread_id = ? AND is_opening = 0 LIMIT 1").bind(id).first();
-  return r !== null;
-}

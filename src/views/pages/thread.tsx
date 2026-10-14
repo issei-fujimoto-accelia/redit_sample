@@ -28,7 +28,7 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, edi
   const hue = communityHue(t.community_id);
   const isOwner = t.author_email === user;
   return (
-    <Layout title={t.title} user={user}>
+    <Layout title={t.title} user={user} current="in-communities">
       <PageHeader
         eyebrow={<CommunityChip id={t.community_id} name={t.community_name} />}
         title={
