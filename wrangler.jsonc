@@ -6,10 +6,18 @@
   "workers_dev": true,
   "preview_urls": false,
   "assets": { "directory": "./public" },
+  // 本番の Access 設定（Issue 015 / docs/DEPLOY.md）。空のままでは JWT 検証が通らず全リクエストが 403（fail closed）。
+  // AUTH_MODE / DEV_USER_EMAIL はここに書かない（.dev.vars のみ）。
+  "vars": {
+    "TEAM_DOMAIN": "",
+    "POLICY_AUD": "",
+    "ALLOWED_EMAIL_DOMAIN": ""
+  },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "redit-sample",
+      // `npx wrangler d1 create redit-sample` の出力の database_id に置き換える
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }

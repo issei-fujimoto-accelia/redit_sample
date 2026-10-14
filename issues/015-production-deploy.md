@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-13
-status: created
+status: doing
 ---
 
 # 015 本番環境の構築とデプロイ
@@ -52,3 +52,11 @@ Workers Free と D1 に本番環境を作り、専用の Cloudflare Access ア�
   - スマートフォン幅で閲覧・投稿できる
   - 本番 JWKS で JWT 検証が通る
   - CPU 時間が 10 ms 以内
+
+## 実装メモ（コード側の準備）
+
+- `wrangler.jsonc` に `vars`（`TEAM_DOMAIN`・`POLICY_AUD`・`ALLOWED_EMAIL_DOMAIN`、空＝fail closed）を追加。`AUTH_MODE`／`DEV_USER_EMAIL` は含めていない。
+- `npx wrangler deploy --dry-run` でビルドとバインディングを確認済み。
+- 手順書 `docs/DEPLOY.md` を作成（D1 作成 → Access アプリケーション → vars → マイグレーション → デプロイ → 手動チェックリスト）。
+- フリープランの上限を公式ドキュメントで再確認（2026-10-14、変更なし）し、ARCHITECTURE §9.1 に反映。
+- 残り：`wrangler login`・D1 作成・Access 設定・デプロイと手動チェックリストはユーザー作業。完了後に `status: done` にする。
