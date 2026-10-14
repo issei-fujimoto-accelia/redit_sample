@@ -36,9 +36,9 @@ function CommunityFields({ formId, state }: { formId: string; state?: FormState 
   );
 }
 
-type ListProps = { user: string; communities: CommunityRecord[]; create?: FormState };
+type ListProps = { user: string; communities: CommunityRecord[] };
 
-export function CommunityListPage({ user, communities, create }: ListProps) {
+export function CommunityListPage({ user, communities }: ListProps) {
   return (
     <Layout title="コミュニティ" user={user} current="communities">
       <PageHeader
@@ -53,6 +53,11 @@ export function CommunityListPage({ user, communities, create }: ListProps) {
           </>
         }
         description="テーマごとの議論の場。気になる場所を開いて、スレッドを読んだり立てたりできます。"
+        actions={
+          <a class="button" href="/c/new">
+            コミュニティを作る
+          </a>
+        }
       />
       <div class="page-grid">
         <section class="col-full" aria-labelledby="community-list-title">
@@ -60,13 +65,32 @@ export function CommunityListPage({ user, communities, create }: ListProps) {
             コミュニティ一覧
           </h2>
           {communities.length === 0 ? (
-            <EmptyState title="コミュニティはまだありません" body="最初のコミュニティを作って、議論の場を開きましょう。" />
+            <EmptyState
+              title="コミュニティはまだありません"
+              body="最初のコミュニティを作って、議論の場を開きましょう。"
+              action={<a href="/c/new">コミュニティを作る</a>}
+            />
           ) : (
             <CommunityGrid communities={communities} />
           )}
         </section>
-        <section class="col-main" id="new-community" aria-label="コミュニティを作る">
-          <Form action="/c" title="コミュニティを作る" submitLabel="作成する" panel errors={errorList(create)}>
+      </div>
+    </Layout>
+  );
+}
+
+/** コミュニティ作成ページ（`GET /c/new`）。400／409 の再描画にも使う */
+export function CommunityNewPage({ user, create }: { user: string; create?: FormState }) {
+  return (
+    <Layout title="コミュニティを作る" user={user} current="in-communities">
+      <PageHeader
+        eyebrow={<a href="/c">コミュニティ</a>}
+        title="コミュニティを作る"
+        description="テーマを決めて、議論の場を開きます。名前はあとから変更できます。"
+      />
+      <div class="page-grid">
+        <section class="col-main" aria-label="コミュニティを作る">
+          <Form action="/c" submitLabel="作成する" panel errors={errorList(create)} extra={<a href="/c">キャンセル</a>}>
             <CommunityFields formId="new-community" state={create} />
           </Form>
         </section>

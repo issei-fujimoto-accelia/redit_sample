@@ -206,3 +206,46 @@ describe("コミュニティの削除（スレッドあり）", () => {
     expect((await as(alice).post(`/c/${cid}/delete`)).status).toBe(303);
   });
 });
+
+describe("コミュニティ作成ページ", () => {
+  it("一覧に作成ページへのリンクがあり、一覧には作成フォームがない", async () => {
+    const { as } = setup();
+    const page = await html(await as(alice).get("/c"));
+    expect(page.links).toContain("/c/new");
+    expect(page.formActions).not.toContain("/c");
+  });
+
+  it("GET /c/new → 200、名前・説明の入力欄と /c へ送るフォームがある", async () => {
+    const { as } = setup();
+    const res = await as(alice).get("/c/new");
+    expect(res.status).toBe(200);
+    const page = await html(res);
+    expect(page.formActions).toContain("/c");
+    expect(page.raw).toMatch(/name="name"/);
+    expect(page.raw).toMatch(/name="description"/);
+    expect(page.has("コミュニティを作る")).toBe(true);
+  });
+
+  it("400 は作成ページ（一覧ではない）を入力値とエラー付きで再描画する", async () => {
+    const { as } = setup();
+    const existing = unique("一覧にだけ出る");
+    await createCommunity(as(alice), { name: existing });
+    const res = await as(alice).post("/c", { name: "", description: "残る説明" });
+    expect(res.status).toBe(400);
+    const page = await html(res);
+    expect(page.formActions).toContain("/c");
+    expect(page.has("残る説明")).toBe(true);
+    expect(page.has(existing)).toBe(false);
+  });
+
+  it("409 は作成ページで理由を表示する", async () => {
+    const { as } = setup();
+    const name = unique("重複");
+    await createCommunity(as(alice), { name });
+    const res = await as(alice).post("/c", { name });
+    expect(res.status).toBe(409);
+    const page = await html(res);
+    expect(page.formActions).toContain("/c");
+    expect(page.has("同じ名前のコミュニティがすでにあります。")).toBe(true);
+  });
+});

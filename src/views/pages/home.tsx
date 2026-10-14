@@ -26,7 +26,7 @@ export function HomePage({ user, list, communities }: Props) {
             </p>
             {communities.length === 0 ? (
               <p class="muted">
-                まだありません。<a href="/c#new-community">最初のコミュニティを作る</a>
+                まだありません。<a href="/c/new">最初のコミュニティを作る</a>
               </p>
             ) : (
               <ul class="community-index" role="list">
