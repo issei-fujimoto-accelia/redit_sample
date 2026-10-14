@@ -332,7 +332,12 @@ export function Styleguide({ user }: { user: string }) {
             <Select formId="sg-sel3" name="c" label="コミュニティ" required error="投稿先のコミュニティを選んでください。" options={communities.map((c) => ({ value: String(c.id), label: c.name }))} />
           </div>
         </Case>
-        <Case label="重複（409）">
+        <Case label="ラベルを隠した入力（返信フォーム）">
+          <Form action="#" submitLabel="返信する" panel>
+            <Field formId="sg-reply" name="body" label="返信の本文" hideLabel placeholder="会話に参加する" max={10000} required multiline rows={4} />
+          </Form>
+        </Case>
+                <Case label="重複（409）">
           <FormErrorSummary errors={["同じ名前のコミュニティがすでにあります。"]} />
         </Case>
         <Case label="無効状態">

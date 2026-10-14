@@ -177,3 +177,17 @@ describe("日時の表示", () => {
     expect(page.raw).toContain('datetime="2026-08-31T15:00:00.000Z"');
   });
 });
+
+describe("返信フォーム", () => {
+  it("見出し「返信する」と見える「本文」ラベルがなく、プレースホルダー「会話に参加する」と隠したラベルがある", async () => {
+    const { as } = setup();
+    const cid = await createCommunity(as(alice));
+    const tid = await createThread(as(alice), cid);
+    const page = await html(await as(alice).get(`/t/${tid}`));
+    const form = page.raw.match(new RegExp(`<form[^>]*action="/t/${tid}/posts"[\\s\\S]*?</form>`))![0];
+    expect(form).toContain('placeholder="会話に参加する"');
+    expect(form).not.toMatch(/<h2/);
+    expect(form).toMatch(/<label[^>]*class="visually-hidden"[^>]*>返信の本文<\/label>/);
+    expect(form).not.toMatch(/<label[^>]*class="field__label"/);
+  });
+});

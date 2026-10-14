@@ -15,6 +15,9 @@ type FieldProps = {
   rows?: number;
   disabled?: boolean;
   autofocus?: boolean;
+  placeholder?: string;
+  /** 見えるラベルを省く。ラベルは視覚的に隠して残し、上限文字数の補足は入力欄の下に置く（UI_GUIDELINES §7） */
+  hideLabel?: boolean;
 };
 
 /** ラベル、入力、補足（上限文字数）、エラー */
@@ -32,7 +35,35 @@ export function Field(p: FieldProps) {
     required: p.required,
     disabled: p.disabled,
     autofocus: p.autofocus,
+    placeholder: p.placeholder,
   };
+  const hint = p.max && (
+    <span class="field__hint" id={hintId}>
+      {p.max.toLocaleString("en-US")}文字まで
+    </span>
+  );
+  const input = p.multiline ? (
+    <textarea {...common} rows={p.rows ?? 6}>
+      {p.value ?? ""}
+    </textarea>
+  ) : (
+    <input {...common} type="text" value={p.value ?? ""} autocomplete="off" />
+  );
+  const error = p.error && (
+    <p class="field__error" id={errorId}>
+      {p.error}
+    </p>
+  );
+  if (p.hideLabel) {
+    return (
+      <div class="field field--bare">
+        <label class="visually-hidden" for={id}>{p.label}</label>
+        {input}
+        {error}
+        {hint && <p class="field__foot">{hint}</p>}
+      </div>
+    );
+  }
   return (
     <div class="field">
       <label class="field__label" for={id}>
@@ -40,24 +71,10 @@ export function Field(p: FieldProps) {
           {p.label}
           {!p.required && <span class="field__req">（任意）</span>}
         </span>
-        {p.max && (
-          <span class="field__hint" id={hintId}>
-            {p.max.toLocaleString("en-US")}文字まで
-          </span>
-        )}
+        {hint}
       </label>
-      {p.multiline ? (
-        <textarea {...common} rows={p.rows ?? 6}>
-          {p.value ?? ""}
-        </textarea>
-      ) : (
-        <input {...common} type="text" value={p.value ?? ""} autocomplete="off" />
-      )}
-      {p.error && (
-        <p class="field__error" id={errorId}>
-          {p.error}
-        </p>
-      )}
+      {input}
+      {error}
     </div>
   );
 }

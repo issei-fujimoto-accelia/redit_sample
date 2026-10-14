@@ -716,6 +716,8 @@
   textarea.field__input { min-block-size: 8rem; resize: vertical; field-sizing: content; max-block-size: 60vh; }
   .field__input:hover, .field__input.is-hover { border-color: var(--color-ink); }
   .field__input:focus-visible, .field__input.is-focus { outline: none; border-color: var(--color-focus); box-shadow: 0 0 0 2px var(--color-focus); }
+  .field__foot { display: flex; justify-content: flex-end; margin: 0; }
+  .field__input::placeholder { color: var(--color-ink-2); opacity: 1; }
   .field__select { position: relative; }
   .field__select::after {
     content: "";
