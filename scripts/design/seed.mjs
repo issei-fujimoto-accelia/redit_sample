@@ -51,13 +51,13 @@ const THREADS = [
 
 // コミュニティページのページング確認用（21件）。ホームでは古い側に回るよう先に作る
 const paging = ids["雑談"];
-if (paging) for (let i = 1; i <= 21; i++) await post(`/c/${paging}/threads`, { title: `ページング確認用のスレッド ${i}`, body: "本文" });
+if (paging) for (let i = 1; i <= 21; i++) await post("/t", { community_id: String(paging), title: `ページング確認用のスレッド ${i}`, body: "本文" });
 
 const threadIds = {};
 for (const t of THREADS) {
   const cid = ids[t.c];
   if (!cid) continue;
-  const r = await post(`/c/${cid}/threads`, { title: t.title, body: t.body });
+  const r = await post("/t", { community_id: String(cid), title: t.title, body: t.body });
   const tid = idOf(r.location);
   threadIds[t.title.slice(0, 12)] = tid;
   for (let i = 0; i < t.replies; i++) {

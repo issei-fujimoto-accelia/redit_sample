@@ -136,7 +136,8 @@ export async function createCommunity(client: Client, form: { name?: string; des
 }
 
 export async function createThread(client: Client, communityId: number, form: { title?: string; body?: string } = {}) {
-  const res = await client.post(`/c/${communityId}/threads`, {
+  const res = await client.post("/t", {
+    community_id: String(communityId),
     title: form.title ?? unique("スレッド"),
     body: form.body ?? "本文です。",
   });

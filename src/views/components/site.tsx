@@ -14,10 +14,12 @@ type LayoutProps = {
   title?: string;
   user?: string;
   current?: Nav;
+  /** ヘッダーの「投稿する」の初期値にするコミュニティ（コミュニティページ・スレッドページ） */
+  postCommunityId?: number;
   children?: Child;
 };
 
-export function Layout({ title, user, current, children }: LayoutProps) {
+export function Layout({ title, user, current, postCommunityId, children }: LayoutProps) {
   const fullTitle = title ? `${title} — ${APP_NAME}` : APP_NAME;
   return (
     <html lang="ja">
@@ -39,7 +41,7 @@ export function Layout({ title, user, current, children }: LayoutProps) {
         <a class="skip-link" href="#main">
           本文へスキップ
         </a>
-        <SiteHeader user={user} current={current} />
+        <SiteHeader user={user} current={current} postCommunityId={postCommunityId} />
         <main id="main" class="site-main" tabindex={-1}>
           <div class="wrap">{children}</div>
         </main>
@@ -59,7 +61,22 @@ export function Wordmark() {
   );
 }
 
-export function SiteHeader({ user, current }: { user?: string; current?: Nav }) {
+/** ヘッダーの主要操作「＋ 投稿する」。モバイルではアイコンのみ */
+export function PostButton({ communityId }: { communityId?: number }) {
+  const href = communityId === undefined ? "/t/new" : `/t/new?c=${communityId}`;
+  return (
+    <a class="post-button" href={href} aria-label="投稿する">
+      <svg class="post-button__icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+        <path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none" />
+      </svg>
+      <span class="post-button__label" aria-hidden="true">
+        投稿する
+      </span>
+    </a>
+  );
+}
+
+export function SiteHeader({ user, current, postCommunityId }: { user?: string; current?: Nav; postCommunityId?: number }) {
   return (
     <header class="site-header">
       <div class="wrap site-header__inner">
@@ -87,6 +104,7 @@ export function SiteHeader({ user, current }: { user?: string; current?: Nav }) 
               <span class="site-user__name">{displayName(user)}</span>
             </p>
           )}
+          {user && <PostButton communityId={postCommunityId} />}
         </nav>
       </div>
     </header>

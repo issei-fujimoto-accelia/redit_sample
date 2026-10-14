@@ -4,32 +4,52 @@ import * as posts from "../repositories/posts";
 import * as repo from "../repositories/threads";
 import { forbidden, notFound, type ServiceResult } from "./result";
 
-export type ThreadForm = { title?: unknown; body?: unknown };
+export const COMMUNITY_REQUIRED = "投稿先のコミュニティを選んでください。";
 
+export type ThreadForm = { community_id?: unknown; title?: unknown; body?: unknown };
+
+/** `?c=` や `community_id` を ID として解釈する。不正なら undefined */
+export function parseCommunityId(raw: unknown): number | undefined {
+  return typeof raw === "string" && /^[1-9]\d{0,15}$/.test(raw) ? Number(raw) : undefined;
+}
+
+/** スレッド作成（`POST /t`）。投稿先のコミュニティ・タイトル・本文をまとめて検証する */
 export async function createThread(
   db: D1Database,
   user: string,
   now: Date,
-  communityId: number,
   form: ThreadForm,
 ): Promise<ServiceResult<number>> {
-  if (!(await communities.findCommunity(db, communityId))) throw notFound();
+  const communityId = parseCommunityId(form.community_id);
+  const community = communityId === undefined ? null : await communities.findCommunity(db, communityId);
   const title = validateField(form.title, RULES.threadTitle);
   const body = validateField(form.body, RULES.postBody);
-  if (!title.ok || !body.ok) {
-    const errors: Record<string, string> = {};
-    if (!title.ok) errors.title = title.error;
-    if (!body.ok) errors.body = body.error;
-    return { ok: false, status: 400, values: { title: String(form.title ?? ""), body: String(form.body ?? "") }, errors };
+  const values = {
+    community_id: String(form.community_id ?? ""),
+    title: String(form.title ?? ""),
+    body: String(form.body ?? ""),
+  };
+  const errors: Record<string, string> = {};
+  if (!community) errors.community_id = COMMUNITY_REQUIRED;
+  if (!title.ok) errors.title = title.error;
+  if (!body.ok) errors.body = body.error;
+  if (!community || !title.ok || !body.ok) return { ok: false, status: 400, values, errors };
+  try {
+    const id = await repo.insertThreadWithOpening(db, {
+      communityId: community.id,
+      title: title.value,
+      body: body.value,
+      authorEmail: user,
+      createdAt: now.toISOString(),
+    });
+    return { ok: true, value: id };
+  } catch (e) {
+    // 検証の直後にコミュニティが削除された場合（外部キー違反）
+    if (e instanceof Error && /FOREIGN KEY constraint failed/i.test(e.message)) {
+      return { ok: false, status: 400, values, errors: { community_id: COMMUNITY_REQUIRED } };
+    }
+    throw e;
   }
-  const id = await repo.insertThreadWithOpening(db, {
-    communityId,
-    title: title.value,
-    body: body.value,
-    authorEmail: user,
-    createdAt: now.toISOString(),
-  });
-  return { ok: true, value: id };
 }
 
 export async function getThread(db: D1Database, id: number) {

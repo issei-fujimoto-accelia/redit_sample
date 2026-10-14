@@ -55,13 +55,5 @@ export function communityRoutes(deps: AppDeps) {
     );
   });
 
-  r.post("/:id/threads", async (c) => {
-    const id = parseId(c.req.param("id"));
-    const form = await c.req.parseBody();
-    const result = await threads.createThread(c.env.DB, c.var.user, deps.now(), id, form);
-    if (result.ok) return c.redirect(`/t/${result.value}`, 303);
-    return render(c, <CommunityPage user={c.var.user} {...await load(c.env.DB, id)} newThread={result} />, result.status);
-  });
-
   return r;
 }

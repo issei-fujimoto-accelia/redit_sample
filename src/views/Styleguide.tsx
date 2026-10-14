@@ -2,9 +2,9 @@ import type { Child } from "hono/jsx";
 import { communityHue } from "../lib/community-hue";
 import { CommunityChip, CommunityGrid } from "./components/community";
 import { EmptyState, FormErrorSummary, Notice, Timestamp } from "./components/common";
-import { DeleteButton, EditDisclosure, Field, Form, OwnerActions } from "./components/form";
+import { DeleteButton, EditDisclosure, Field, Form, OwnerActions, Select } from "./components/form";
 import { PostItem, PostList, type PostRow } from "./components/post";
-import { Layout, PageHeader, SiteHeader } from "./components/site";
+import { Layout, PageHeader, PostButton, SiteHeader } from "./components/site";
 import { Pagination, ThreadList, ThreadListItem, type ThreadRow } from "./components/thread";
 
 /** スタイルガイド（UI_GUIDELINES §8.3）。全部品と §6.3 の状態を固定データで並べる */
@@ -123,6 +123,12 @@ export function Styleguide({ user }: { user: string }) {
         <Case label="SiteHeader（現在地：ホーム）">
           <div style="border: var(--line-width) solid var(--color-line)">
             <SiteHeader user={user} current="home" />
+          </div>
+        </Case>
+        <Case label="PostButton（ヘッダーの「＋ 投稿する」。モバイルではアイコンのみ）">
+          <div class="sg-row">
+            <PostButton />
+            <PostButton communityId={2} />
           </div>
         </Case>
         <Case label="ボタン：通常 / ホバー / フォーカス / 押下 / 無効">
@@ -318,6 +324,13 @@ export function Styleguide({ user }: { user: string }) {
             <Field formId="sg-err" name="title" label="タイトル" max={200} required value="" error="タイトルを入力してください。" />
             <Field formId="sg-err" name="body" label="本文" max={10000} required multiline value={"長い本文…"} error="本文は10,000文字以内で入力してください。" />
           </Form>
+        </Case>
+        <Case label="Select（スレッド作成の投稿先）：未選択 / 選択済み / エラー">
+          <div style="display: grid; gap: var(--space-5); max-inline-size: var(--column)">
+            <Select formId="sg-sel1" name="c" label="コミュニティ" required options={communities.map((c) => ({ value: String(c.id), label: c.name }))} />
+            <Select formId="sg-sel2" name="c" label="コミュニティ" required value="2" options={communities.map((c) => ({ value: String(c.id), label: c.name }))} />
+            <Select formId="sg-sel3" name="c" label="コミュニティ" required error="投稿先のコミュニティを選んでください。" options={communities.map((c) => ({ value: String(c.id), label: c.name }))} />
+          </div>
         </Case>
         <Case label="重複（409）">
           <FormErrorSummary errors={["同じ名前のコミュニティがすでにあります。"]} />
