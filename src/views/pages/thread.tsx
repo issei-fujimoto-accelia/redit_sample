@@ -107,11 +107,13 @@ export function ThreadPage({ user, thread: t, posts, editTitle, deleteError, edi
           </PostList>
         </section>
         <section class="col-main" id="reply" aria-label="返信する">
-          <Form action={`/t/${t.id}/posts`} title="返信する" submitLabel="返信する" panel errors={errorList(newReply)}>
+          <Form action={`/t/${t.id}/posts`} submitLabel="返信する" panel errors={errorList(newReply)}>
             <Field
               formId="reply"
               name="body"
-              label="本文"
+              label="返信の本文"
+              hideLabel
+              placeholder="会話に参加する"
               max={RULES.postBody.max}
               required
               multiline
