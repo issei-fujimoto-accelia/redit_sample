@@ -1,6 +1,6 @@
 ---
 created_at: 2026-10-14
-status: created
+status: done
 ---
 
 # 016 ［ドキュメント］コミュニティ作成を独立ページにする
@@ -46,10 +46,20 @@ status: created
 
 ## Acceptance criteria
 
-- [ ] REQUIREMENTS・ARCHITECTURE・UI_GUIDELINES・TEST_STRATEGY・IMPLEMENTATION_PLAN の該当箇所が更新され、互いに矛盾しない
-- [ ] 作成ページの URL、エラー時の再描画先、遷移が文書で一意に決まっている
-- [ ] CONCEPT との差分（画面数）の扱いがユーザーと合意されている
+- [x] REQUIREMENTS・ARCHITECTURE・UI_GUIDELINES・TEST_STRATEGY・IMPLEMENTATION_PLAN の該当箇所が更新され、互いに矛盾しない
+- [x] 作成ページの URL、エラー時の再描画先、遷移が文書で一意に決まっている
+- [x] CONCEPT との差分（画面数）の扱いがユーザーと合意されている
 
 ## Tests
 
 - ドキュメントのみのため自動テストなし。017 の Tests 欄を本 Issue の決定に合わせて見直す
+
+## 決定事項（ユーザー確認済み）
+
+- 作成ボタンはコミュニティ**一覧**（`/c`）にのみ置く。個々のコミュニティページには置かない。
+- 作成ページの URL は `/c/new`。`POST /c` の 400／409 は作成ページで再描画。
+- `spec/CONCEPT.md` §7 の画面表も更新する（ユーザーの明示的な指示）。コミュニティ作成画面を追加した。
+
+## 更新した文書
+
+- `spec/CONCEPT.md` §7、`docs/REQUIREMENTS.md` §5.1・§5.2・FR-CM-2・§10、`docs/ARCHITECTURE.md` §5、`docs/UI_GUIDELINES.md` §4.2・§9.7、`docs/TEST_STRATEGY.md` §5、`docs/IMPLEMENTATION_PLAN.md`（M7：W16〜W18）
