@@ -1,13 +1,29 @@
 import { Hono } from "hono";
 import { parseId } from "../services/result";
 import * as posts from "../services/posts";
+import { listCommunities } from "../services/communities";
 import * as svc from "../services/threads";
 import type { AppDeps, AppEnv } from "../types";
 import { ThreadPage } from "../views/pages/thread";
+import { ThreadNewPage } from "../views/pages/thread-new";
 import { render } from "../views/render";
 
 export function threadRoutes(deps: AppDeps) {
   const r = new Hono<AppEnv>();
+
+  // `/:id` より先に定義する（ARCHITECTURE §5）
+  r.get("/new", async (c) => {
+    const communities = await listCommunities(c.env.DB);
+    const selectedId = svc.parseCommunityId(c.req.query("c"));
+    return render(c, <ThreadNewPage user={c.var.user} communities={communities} selectedId={selectedId} />);
+  });
+
+  r.post("/", async (c) => {
+    const result = await svc.createThread(c.env.DB, c.var.user, deps.now(), await c.req.parseBody());
+    if (result.ok) return c.redirect(`/t/${result.value}`, 303);
+    const communities = await listCommunities(c.env.DB);
+    return render(c, <ThreadNewPage user={c.var.user} communities={communities} state={result} />, result.status);
+  });
 
   r.get("/:id", async (c) => {
     const { thread, posts } = await svc.getThreadWithPosts(c.env.DB, parseId(c.req.param("id")));

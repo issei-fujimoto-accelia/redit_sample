@@ -62,6 +62,60 @@ export function Field(p: FieldProps) {
   );
 }
 
+type SelectProps = {
+  formId: string;
+  name: string;
+  label: string;
+  options: { value: string; label: string }[];
+  /** 選択中の値。一致する選択肢に `selected` を付ける（JS なし） */
+  value?: string;
+  error?: string;
+  required?: boolean;
+  /** 未選択の選択肢の文言 */
+  placeholder?: string;
+};
+
+/** `Field` の選択肢版。ラベル、`<select>`、エラー */
+export function Select(p: SelectProps) {
+  const id = `${p.formId}-${p.name}`;
+  const errorId = `${id}-error`;
+  const hasValue = p.options.some((o) => o.value === p.value);
+  return (
+    <div class="field">
+      <label class="field__label" for={id}>
+        <span>
+          {p.label}
+          {!p.required && <span class="field__req">（任意）</span>}
+        </span>
+      </label>
+      <div class="field__select">
+        <select
+          id={id}
+          name={p.name}
+          class="field__input"
+          required={p.required}
+          aria-invalid={p.error ? "true" : undefined}
+          aria-describedby={p.error ? errorId : undefined}
+        >
+          <option value="" disabled={p.required} selected={hasValue ? undefined : true} hidden={p.required}>
+            {p.placeholder ?? "選んでください"}
+          </option>
+          {p.options.map((o) => (
+            <option value={o.value} selected={o.value === p.value ? true : undefined}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {p.error && (
+        <p class="field__error" id={errorId}>
+          {p.error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 type FormProps = {
   action: string;
   title?: string;

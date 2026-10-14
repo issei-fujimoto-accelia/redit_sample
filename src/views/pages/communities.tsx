@@ -107,15 +107,13 @@ type PageProps = {
   edit?: FormState;
   /** 削除できない理由（409） */
   deleteError?: string;
-  /** スレッド作成の 400 */
-  newThread?: FormState;
 };
 
-export function CommunityPage({ user, community: c, list, edit, deleteError, newThread }: PageProps) {
+export function CommunityPage({ user, community: c, list, edit, deleteError }: PageProps) {
   const isOwner = c.author_email === user;
   const editState: FormState = edit ?? { values: { name: c.name, description: c.description }, errors: {} };
   return (
-    <Layout title={c.name} user={user} current="communities">
+    <Layout title={c.name} user={user} current="in-communities" postCommunityId={c.id}>
       <PageHeader
         eyebrow={<a href="/c">コミュニティ</a>}
         title={c.name}
@@ -165,32 +163,8 @@ export function CommunityPage({ user, community: c, list, edit, deleteError, new
             page={list.page}
             hasNext={list.hasNext}
             baseUrl={`/c/${c.id}`}
-            emptyBody="下のフォームから最初のスレッドを立てて、議論を始めましょう。"
+            emptyBody="ヘッダーの「投稿する」から、最初のスレッドを立てましょう。"
           />
-        </section>
-        <section class="col-main" id="new-thread" aria-label="スレッドを立てる">
-          <Form action={`/c/${c.id}/threads`} title="スレッドを立てる" submitLabel="投稿する" panel errors={errorList(newThread)}>
-            <Field
-              formId="new-thread"
-              name="title"
-              label="タイトル"
-              max={RULES.threadTitle.max}
-              required
-              value={newThread?.values.title}
-              error={newThread?.errors.title}
-            />
-            <Field
-              formId="new-thread"
-              name="body"
-              label="本文"
-              max={RULES.postBody.max}
-              required
-              multiline
-              rows={6}
-              value={newThread?.values.body}
-              error={newThread?.errors.body}
-            />
-          </Form>
         </section>
       </div>
     </Layout>

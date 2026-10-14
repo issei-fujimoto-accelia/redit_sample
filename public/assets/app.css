@@ -306,7 +306,15 @@
   .site-nav { display: flex; align-items: center; gap: var(--space-1) var(--space-3); flex-wrap: wrap; }
   .site-nav__list { display: flex; gap: 0; padding: 0; list-style: none; }
   @media (min-width: 40rem) { .site-nav__list { gap: var(--space-2); } .site-nav__link { padding-inline: var(--space-3); } .site-nav__link::after { inset-inline: var(--space-3); } }
-  @media (max-width: 39.99rem) { .wordmark { font-size: var(--step-1); } .site-header__inner { column-gap: var(--space-3); } }
+  @media (max-width: 39.99rem) {
+    /* モバイルはヘッダーを1段に保つ（UI_GUIDELINES §4.1）。長い表示名は省略する */
+    .wordmark { font-size: var(--step-1); }
+    .site-header__inner { column-gap: var(--space-2); flex-wrap: nowrap; }
+    .site-nav { flex-wrap: nowrap; gap: var(--space-2); }
+    .site-nav__link { letter-spacing: 0.02em; white-space: nowrap; }
+    .site-user { padding-inline-start: var(--space-2); min-inline-size: 0; }
+    .site-user__name { display: inline-block; max-inline-size: 4.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+  }
   .site-nav__link {
     position: relative;
     display: inline-flex;
@@ -348,6 +356,41 @@
   }
   @media (min-width: 40rem) { .site-user { padding-inline-start: var(--space-4); } }
   .site-user__name { color: var(--color-ink); font-weight: 600; overflow-wrap: anywhere; }
+
+  /* ---------- PostButton（ヘッダーの主要操作） ---------- */
+  .post-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-inline-size: var(--hit);
+    min-block-size: var(--hit);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: background-color var(--duration-1) var(--ease-out), color var(--duration-1) var(--ease-out);
+  }
+  .post-button:hover { background: var(--color-accent); color: var(--color-accent-ink); }
+  .post-button:active { transform: translateY(1px); }
+  .post-button__icon { flex: none; transition: transform var(--duration-2) var(--ease-out); }
+  .post-button:hover .post-button__icon { transform: rotate(90deg); }
+  .post-button__label { display: none; }
+  @media (min-width: 40rem) {
+    .post-button { padding-inline: var(--space-4) var(--space-5); }
+    .post-button__label { display: inline; }
+  }
+
+  @media (max-width: 24rem) {
+    .wordmark { font-size: var(--step-0); }
+    .site-nav__link { padding-inline: 0.375rem; }
+    .site-nav__link::after { inset-inline: 0.375rem; }
+    .site-user__name { max-inline-size: 3.5em; }
+  }
 
   /* ---------- SiteFooter ---------- */
   .site-footer {
@@ -673,6 +716,20 @@
   textarea.field__input { min-block-size: 8rem; resize: vertical; field-sizing: content; max-block-size: 60vh; }
   .field__input:hover, .field__input.is-hover { border-color: var(--color-ink); }
   .field__input:focus-visible, .field__input.is-focus { outline: none; border-color: var(--color-focus); box-shadow: 0 0 0 2px var(--color-focus); }
+  .field__select { position: relative; }
+  .field__select::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: var(--space-4);
+    inset-block-start: 50%;
+    inline-size: 0.5em;
+    block-size: 0.5em;
+    border-inline-end: 1.5px solid currentColor;
+    border-block-end: 1.5px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  select.field__input { appearance: none; padding-inline-end: var(--space-7); cursor: pointer; }
   .field__input:disabled { background: var(--color-paper-2); color: var(--color-ink-2); cursor: not-allowed; }
   .field__input[aria-invalid="true"] { border-color: var(--color-danger); box-shadow: inset 3px 0 0 var(--color-danger); }
   .field__error { display: flex; gap: var(--space-2); font-size: var(--step--1); font-weight: 600; color: var(--color-danger); }
