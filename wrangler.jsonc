@@ -19,15 +19,8 @@
 		{
 			"binding": "DB",
 			"database_name": "redit-sample",
-			// `npx wrangler d1 create redit-sample` の出力の database_id に置き換える
 			"database_id": "cff03d48-9e52-49bb-b298-829ec6cdd07d",
 			"migrations_dir": "migrations"
-		},
-		{
-			"binding": "redit_sample",
-			"database_name": "redit-sample",
-			"database_id": "cff03d48-9e52-49bb-b298-829ec6cdd07d",
-			"remote": true
 		}
 	]
 }
