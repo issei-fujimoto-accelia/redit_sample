@@ -215,7 +215,7 @@
 
 - **対象**：
   - 本番 D1 の作成と `wrangler.jsonc` への `database_id` 反映。
-  - 本アプリ専用の Access アプリケーション（特定ドメインのみ許可）と AUD の取得（ADR-5）。
+  - 本アプリ専用の Access アプリケーション（特定ドメインのみ許可）と AUD の取得（ADR-5）。Worker の Domains & Routes から有効化する（docs/DEPLOY.md §3）。
   - 本番の環境変数 `TEAM_DOMAIN`、`POLICY_AUD`、`ALLOWED_EMAIL_DOMAIN`。
   - `npm run db:migrate:remote` → `npm run deploy`。
   - フリープランの上限値を公式ドキュメントで再確認（ARCH §9.1）。
